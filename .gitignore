@@ -1,0 +1,6 @@
+dynamic/
+static/
+cavm
+cavm-submit
+test
+*.o
