@@ -1,13 +1,14 @@
 #include "HotSwap.hpp"
 #include "Compiler.hpp"
 
+#include <cassert>
 #include <mutex>
 #include <thread>
 
 HotSwap::HotSwap() {
   active = new Compiler;
   available = new Compiler;
-  available->load_dynamic("dynamic/lib/libtcc.dylib");
+  assert(available->load_dynamic("dynamic/lib/libtcc.dylib"));
 
   active->compile("void play(void) {}");
   new_code_ready.store(false);

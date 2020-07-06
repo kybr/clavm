@@ -23,7 +23,7 @@ function! g:TryCode()
 
   " try the code; collect the output
   "
-  let l:message = join(systemlist('./cavm-submit', getline(0, line('$'))), '|')
+  let l:message = join(systemlist('./clavm-submit', getline(0, line('$'))), '|')
 
 
   " successful run means we get some statistics back; show them

@@ -13,7 +13,7 @@ LINK += -llo
 LINK += -framework CoreAudio
 LINK += -framework CoreFoundation
 
-_: cavm cavm-submit test
+_: clavm clavm-submit test
 
 %.o : %.cpp
 	$(CXX) -c $<
@@ -24,14 +24,14 @@ TCC.o : TCC.cpp
 RtAudio.o : RtAudio.cpp
 	$(CXX) -D__MACOSX_CORE__ -c $<
 
-cavm : cavm.o TCC.o HotSwap.o RtAudio.o
+clavm : clavm.o TCC.o HotSwap.o RtAudio.o
 	$(CXX) $(LINK) $^ -o $@
 
-cavm-submit : cavm-submit.o TCC.o
+clavm-submit : clavm-submit.o TCC.o
 	$(CXX) -L static/lib -ltcc -llo $^ -o $@
 
 test : test.o TCC.o HotSwap.o
 	$(CXX) -L static/lib -ltcc $^ -o $@
 
 clean:
-	rm *.o test cavm cavm-submit
+	rm *.o test clavm clavm-submit

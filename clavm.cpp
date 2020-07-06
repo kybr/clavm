@@ -1,3 +1,4 @@
+#include <cassert>
 #include <iostream>
 #include <thread>
 
@@ -47,11 +48,7 @@ int main(int argc, char* argv[]) {
 
     float* block = hotswap->process(frameCount, sample, SAMPLE_RATE);
 
-    // int n = 0;
-    // for (int i = 0; i < frameCount; ++i) {
-    //   o[n++] = block[i];
-    //   o[n++] = block[i];
-    // }
+    assert(block != nullptr);
 
     for (int i = 0; i < 2 * frameCount; ++i)  //
       o[i] = block[i];
@@ -78,9 +75,6 @@ int main(int argc, char* argv[]) {
     unsigned frameCount = FRAME_COUNT;
     unsigned sampleRate = SAMPLE_RATE;
 
-    // dac.openStream(&oParams, &iParams, RTAUDIO_FLOAT32, sampleRate,
-    // &frameCount, &process, &compiler);
-    //
     dac.openStream(&oParams, &iParams, RTAUDIO_FLOAT32, sampleRate, &frameCount,
                    process, &hotswap);
 
@@ -94,16 +88,22 @@ int main(int argc, char* argv[]) {
     exit(1);
   }
 
-  ////////////////////////////////////////////////////////////////////////////
-  // WAIT FOR QUIT
-  ////////////////////////////////////////////////////////////////////////////
-
   liblo.start();
+
+  //
+  //
+  //
 
   printf("Hit enter to quit...\n");
   fflush(stdout);
 
   getchar();
+
+  //
+  //
+  //
+
+  liblo.stop();
 
   try {
     dac.stopStream();
@@ -111,22 +111,4 @@ int main(int argc, char* argv[]) {
   } catch (RtAudioError& error) {
     error.printMessage();
   }
-
-  liblo.stop();
-
-  //
-  //
-  //
-
-  /*
-  using namespace std::chrono;
-
-  int k = 0;
-  while (true) {
-    float* block = hotswap.process(1024, k * 1024, 44100);
-    k += 1024;
-
-    std::this_thread::sleep_for(milliseconds(23));
-  }
-  */
 }
