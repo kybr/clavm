@@ -2,5 +2,9 @@ dynamic/
 static/
 clavm
 clavm-submit
+clavm-wav
 test
 *.o
+backup/
+*.pkf
+*.wav

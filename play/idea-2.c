@@ -98,7 +98,7 @@ void play() {
     float e = frac(slow);
     e = 1 - e;
 
-    float hz = ((float[]){25, 35, 40, 33})[SLOW % 4];
+    float hz = (float[]){25, 35, 40, 33}[SLOW % 4];
     v = quasi(mtof(hz), 0.8 + 0.1 * tone(phasor(4.31)));
 
     v *= e;
@@ -109,7 +109,7 @@ void play() {
     float e = frac(slow);
     e = 1 - e;
 
-    float hz = ((float[]){49, 51, 47, 45})[SLOW % 4];
+    float hz = (float[]){49, 51, 47, 45}[SLOW % 4];
     s = quasi(mtof(hz), 0.6 + 0.1 * tone(phasor(5.101)));
 
     s *= e;

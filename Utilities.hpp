@@ -1,11 +1,15 @@
 #pragma once
 
-struct Timer {
-  struct Entry {
-    std::string name;
-    double time;
-  };
+#include <chrono>
+#include <string>
+#include <vector>
 
+struct Entry {
+  std::string name;
+  double time;
+};
+
+struct Timer {
   std::vector<Entry> entry;
 
   std::chrono::high_resolution_clock::time_point creation;

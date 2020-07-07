@@ -13,7 +13,7 @@ LINK += -llo
 LINK += -framework CoreAudio
 LINK += -framework CoreFoundation
 
-_: clavm clavm-submit test
+_: clavm clavm-submit clavm-wav test
 
 %.o : %.cpp
 	$(CXX) -c $<
@@ -29,6 +29,9 @@ clavm : clavm.o TCC.o HotSwap.o RtAudio.o
 
 clavm-submit : clavm-submit.o TCC.o
 	$(CXX) -L static/lib -ltcc -llo $^ -o $@
+
+clavm-wav : clavm-wav.o TCC.o
+	$(CXX) -L static/lib -ltcc $^ -o $@
 
 test : test.o TCC.o HotSwap.o
 	$(CXX) -L static/lib -ltcc $^ -o $@
