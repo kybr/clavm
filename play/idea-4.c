@@ -1,9 +1,12 @@
-
 float* _float(int);
 int* _int(int);
 double _time();
 float _rate();
 void _out(float, float);
+
+double pow(double, double);
+
+float mtof(float m) { return 440.0 * pow(2.0, (m - 69.0) / 12.0); }
 
 float uniform() {
   int* history = _int(1);
@@ -70,7 +73,7 @@ float onepole(float x, float a) {
 }
 
 // byte(t, 0xDEADBEEF)
-float byte(float phase, int pattern) {
+int byte(float phase, int pattern) {
   unsigned i = 32 * phase;
   return 1 & (pattern >> i);
 }
@@ -104,50 +107,28 @@ float subo(float phase, float division) {
 
 void play() {
   float t = _time();
-  t *= 0.9;
-  int T = t;
-  int F = 2 * t;
-  t = frac(t);
+
+  float s = 0.25 * t;
+  s = frac(s);
 
   float l = 0;
   float r = 0;
 
-  float u = uniform();
-  float w = uniform();
-
-  if (1) {
-    if (edge(subd(t, 4))) l = w;
-    if (edge(subd(t, 8))) r = u;
-  }
-
-  if (1) {
-    float e = subo(t, 2);
-    e = e * e;
-    l += 0.1 * w * e;
-    r += 0.1 * u * e;
-  }
-
-  if (0)  //
   {
-    float e = imp(subd(t, 0.5));
-    for (int i = 0; i < 2; ++i)  //
-      e *= e;
-    e *= 1 - subd(t, 2);
-
-    l += e * u * 0.4;
-    r += e * w * 0.4;
+    float f = mtof((float[]){59, 60, 57, 60, 54, 50, 60, 59}[(int)t % 8]);
+    f = onepole(f, 0.992);
+    float d = tone(phasor(f));
+    d *= byte(s, 0xDEADBEEF);
+    d = onepole(d, 0.997);
+    l += d;
   }
-
-  float hz = (float[]){0, 0, 27.5, 55, 0, 55, 27.5, 880}[(F) % 8];
-  hz = onepole(hz, 0.998);
-  float k = tone(phasor(hz));
-  k *= 1 - subd(t, 2);
-
-  l += 0.6 * k;
-  r += 0.6 * k;
-
-  l = tanh(l);
-  r = tanh(r);
-
+  {
+    float f = mtof((float[]){66, 67, 65, 67, 62, 57, 66, 68}[(int)t % 8]);
+    f = onepole(f, 0.992);
+    float d = tone(phasor(f));
+    d *= byte(s, 0xBEEFDEAD);
+    d = onepole(d, 0.997);
+    r += d;
+  }
   _out(l, r);
 }
