@@ -1,0 +1,50 @@
+CXX = c++
+CXX += -std=c++11
+CXX += -g
+CXX += -Wall
+#CXX += -O2
+
+LINK =
+LINK += -L static/lib
+LINK += -ltcc
+LINK += -llo
+LINK += -ldl
+LINK += -lpthread
+LINK += -lasound
+LINK += static/lib/libtcc.a
+
+_: clavm clavm-submit clavm-wav test
+
+%.o : %.cpp
+	$(CXX) -c $<
+
+Utilities.o : Utilities.cpp
+	$(CXX) -c $< -Wno-psabi
+
+TCC.o : TCC.cpp
+	$(CXX) -I static/include -c $<
+
+RtAudio.o : RtAudio.cpp
+	$(CXX) -D__LINUX_ALSA__ -c $<
+
+clavm : clavm.o TCC.o HotSwap.o RtAudio.o
+	$(CXX) $^ -o $@ $(LINK)
+
+clavm-submit : clavm-submit.o TCC.o Utilities.o
+	$(CXX) $^ -o $@ -L static/lib -ltcc static/lib/libtcc.a -llo -lpthread -ldl
+
+clavm-wav : clavm-wav.o TCC.o Utilities.o
+	$(CXX) $^ -o $@ -L static/lib -ltcc static/lib/libtcc.a -lpthread -ldl
+
+test : test.o TCC.o HotSwap.o
+	$(CXX) $^ -o $@ -L static/lib -ltcc static/lib/libtcc.a -lpthread -ldl
+
+clean:
+	rm *.o test clavm clavm-submit
+
+OS := $(shell uname)
+ifeq "$(OS)" "Darwin"
+# Run MacOS commands
+else
+# check for Linux and run other commands
+endif

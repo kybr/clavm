@@ -1,12 +1,11 @@
+#include <lo/lo.h>
+#include <lo/lo_cpp.h>
+
 #include <cassert>
 #include <iostream>
 #include <thread>
 
-#include <lo/lo.h>
-#include <lo/lo_cpp.h>
-
 #include "HotSwap.hpp"
-
 #include "RtAudio.h"
 
 const int FRAME_COUNT = 1024;
@@ -29,7 +28,7 @@ int main(int argc, char* argv[]) {
     // printf("%s", code.c_str());
 
     if (hotswap.compile(code.c_str())) {
-      // printf("~~~ compiled ~~~\n");
+      printf("~~~ compiled ~~~\n");
     } else {
       // this should not happen
       printf("%s\n", hotswap.error());
@@ -44,13 +43,13 @@ int main(int argc, char* argv[]) {
 
     auto hotswap = static_cast<HotSwap*>(data);
     auto o = static_cast<float*>(outputBuffer);
-    auto i = static_cast<float*>(inputBuffer);
+    // auto i = static_cast<float*>(inputBuffer);
 
     float* block = hotswap->process(frameCount, sample, SAMPLE_RATE);
 
     assert(block != nullptr);
 
-    for (int i = 0; i < 2 * frameCount; ++i)  //
+    for (unsigned i = 0; i < 2 * frameCount; ++i)  //
       o[i] = block[i];
 
     sample += frameCount;
@@ -71,11 +70,14 @@ int main(int argc, char* argv[]) {
   iParams.deviceId = dac.getDefaultInputDevice();
   iParams.nChannels = CHANNELS;
 
+  RtAudio::DeviceInfo info = dac.getDeviceInfo(dac.getDefaultOutputDevice());
+  printf("device: %s\n", info.name.c_str());
+
   try {
     unsigned frameCount = FRAME_COUNT;
     unsigned sampleRate = SAMPLE_RATE;
 
-    dac.openStream(&oParams, &iParams, RTAUDIO_FLOAT32, sampleRate, &frameCount,
+    dac.openStream(&oParams, nullptr, RTAUDIO_FLOAT32, sampleRate, &frameCount,
                    process, &hotswap);
 
     if (FRAME_COUNT != frameCount) {

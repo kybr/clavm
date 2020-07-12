@@ -39,6 +39,7 @@ int main(int argc, char* argv[]) {
   for (int i = 0; i < sampleCount; i += 1024) {
     float* audio = c.process(1024, i, sampleRate);
     drwav_uint64 framesWritten = drwav_write_pcm_frames(&wav, 1024, audio);
+    assert(framesWritten == 1024);
   }
 
   drwav_uninit(&wav);

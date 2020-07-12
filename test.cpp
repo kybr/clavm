@@ -1,10 +1,10 @@
-#include "HotSwap.hpp"
-
 #include <cassert>
 #include <chrono>
 #include <cmath>
 #include <thread>
 #include <vector>
+
+#include "HotSwap.hpp"
 
 const char* code = R"(
 float* _float(int);
@@ -78,7 +78,7 @@ int main(int argc, char* argv[]) {
     for (auto f : data)  //
       printf("%f\n", f);
   else
-    fprintf(stderr, "%lu samples\n", data.size());
+    fprintf(stderr, "%u samples\n", data.size());
 
   hotswap.info();
 }

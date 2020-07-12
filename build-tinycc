@@ -1,18 +1,18 @@
 #!/bin/sh
 
 INSTALL_STATIC=`pwd`/static
-pushd tinycc
+cd tinycc
 make distclean
 ./configure --prefix=$INSTALL_STATIC
 make
 make install
-popd
+cd ..
 
 INSTALL_DYNAMIC=`pwd`/dynamic
-pushd tinycc
+cd tinycc
 make distclean
 ./configure --prefix=$INSTALL_DYNAMIC --disable-static
 make
 make install
-popd
+cd ..
 

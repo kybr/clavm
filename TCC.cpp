@@ -1,9 +1,9 @@
-#include "Compiler.hpp"
-
 #include <dlfcn.h>
 #include <libtcc.h>
 
 #include <string>
+
+#include "Compiler.hpp"
 
 typedef void (*TCCErrorFunc)(void *opaque, const char *msg);
 typedef TCCState *(*type_tcc_new)(void);

@@ -1,8 +1,9 @@
 #pragma once
 
-#include "Compiler.hpp"
-
+#include <atomic>
 #include <mutex>
+
+#include "Compiler.hpp"
 
 class HotSwap {
   Compiler* active{nullptr};
