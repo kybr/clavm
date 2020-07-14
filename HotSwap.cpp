@@ -9,8 +9,11 @@
 HotSwap::HotSwap() {
   active = new Compiler;
   available = new Compiler;
+#ifdef __PI__
   assert(available->load_dynamic("dynamic/lib/libtcc.so"));
-  // assert(available->load_dynamic("dynamic/lib/libtcc.dylib"));
+#else
+  assert(available->load_dynamic("dynamic/lib/libtcc.dylib"));
+#endif
 
   active->compile("void play(void) {}");
   new_code_ready.store(false);

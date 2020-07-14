@@ -73,10 +73,19 @@ float quasi(float frequency, float filter) {
   return (o + (0.376 - w * 0.752)) * (1.0 - 2.0 * w);
 }
 
+// this should really be a double or a long int
+float accum(float hz) {
+  float* value = _float(1);
+  *value += hz / _rate();
+  return *value;
+}
+
 void play() {
+  float time = accum(4.0);
+
   float f = 0;
   {
-    float t = _time();
+    float t = time;
     t *= 0.25;
     t = frac(t);
     for (int i = 0; i < 3; ++i)  //
@@ -98,13 +107,13 @@ void play() {
 
   float v = 0;
   {
-    float t = _time();
+    float t = time;
     t *= 0.25;
     int T = t;
     t = frac(t);
     t = 1 - t;
 
-    float hz = ((float[]){25, 35, 40, 33})[T % 4];
+    float hz = ((float[]){33, 31, 29, 28})[T % 4];
     v = quasi(mtof(hz), 0.8 + 0.1 * sin(3.1415927 * 2 * phasor(4.31)));
 
     v *= t;
@@ -112,14 +121,14 @@ void play() {
 
   float s = 0;
   {
-    float t = _time();
+    float t = time;
     t *= 0.25;
     int T = t;
     t = frac(t);
     t = 1 - t;
 
-    float hz = ((float[]){49, 51, 47, 45})[T % 4];
-    s = quasi(mtof(hz), 0.6 + 0.1 * sin(3.1415927 * 2 * phasor(5.101)));
+    float hz = ((float[]){48, 47, 55, 52})[T % 4];
+    s = quasi(2 * mtof(hz), 0.6 + 0.1 * sin(3.1415927 * 2 * phasor(5.101)));
 
     s *= t;
   }
@@ -132,22 +141,21 @@ void play() {
 
   float w = 0;
   {
-    float t = _time();
-    // t *= 0.25;
+    float t = time;
+    t *= 0.5;
     int T = t;
     t = frac(t);
     t = 1 - t;
 
-    float hz = ((float[]){49, 51, 47, 40})[T % 4];
-    // float hz = ((float[]){49, 51, 47, 40, 51, 35, 40, 42})[T % 8];
-    w = quasi(mtof(hz) * 8, 0.8 + 0.2 * sin(3.1415927 * 2 * phasor(7.101)));
+    float hz = ((float[]){48, 52, 47, 52, 47, 55, 48, 47})[T % 8];
+    w = quasi(mtof(hz) * 4, 0.8 + 0.2 * sin(3.1415927 * 2 * phasor(7.101)));
 
     w *= t;
   }
 
   float o = 0;
   o += 0.2 * c;
-  o += 0.3 * s;
+  o += 0.2 * s;
   o += 0.2 * f;
   o += 0.3 * v;
   o += 0.2 * w;

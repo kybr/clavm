@@ -77,8 +77,13 @@ int main(int argc, char* argv[]) {
     unsigned frameCount = FRAME_COUNT;
     unsigned sampleRate = SAMPLE_RATE;
 
+#ifdef __PI__
     dac.openStream(&oParams, nullptr, RTAUDIO_FLOAT32, sampleRate, &frameCount,
                    process, &hotswap);
+#else
+    dac.openStream(&oParams, &iParams, RTAUDIO_FLOAT32, sampleRate, &frameCount,
+                   process, &hotswap);
+#endif
 
     if (FRAME_COUNT != frameCount) {
       // die

@@ -78,7 +78,11 @@ int main(int argc, char* argv[]) {
     for (auto f : data)  //
       printf("%f\n", f);
   else
+#ifdef __PI__
     fprintf(stderr, "%u samples\n", data.size());
+#else
+    fprintf(stderr, "%lu samples\n", data.size());
+#endif
 
   hotswap.info();
 }
