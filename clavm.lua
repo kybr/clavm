@@ -10,30 +10,21 @@
 --
 --
 
-
---------------------------------------------------------------------------------
--- Set up CLAVM ----------------------------------------------------------------
---------------------------------------------------------------------------------
-
-function setup()
-  -- do things only on load
-end
-
-
+local socket = nil -- use the same socket for all
 
 --------------------------------------------------------------------------------
 -- Listen for buffer changes; Spurt contents via UDP 127.0.0.1:9999 ------------
 --------------------------------------------------------------------------------
 
 -- local function text_change(_, bufnr, changedtick, firstline, lastline, new_lastline, old_byte_size, old_utf32_size, old_utf16_size)
-local function text_change()
+local function text_change(_, bufnr)
 
   -- TODO: throttle here; return quick if no actual change
   -- probably hashing is the only way.
 
   -- get all the lines in the current buffer and make a single string
   --
-  local lines = vim.api.nvim_buf_get_lines(0, 0, -1, true)
+  local lines = vim.api.nvim_buf_get_lines(bufnr, 0, -1, true)
   local content = table.concat(lines, "\n")
 
   -- TODO: possibly prepend metadata here
@@ -41,17 +32,22 @@ local function text_change()
 
   -- send a datagram with the content
   --
-  local socket = vim.loop.new_udp()
   local bytes = vim.loop.udp_try_send(socket, content, "127.0.0.1", 9999)
   if (bytes == nil) then
     -- TODO: handle this; or not. why would it fail?
   end
 end
 
-local function spurt()
+local function buffer_listen()
+  -- TODO: check the current buffer number and fail if we already listen
   local result = vim.api.nvim_buf_attach(0, false, {on_lines = text_change})
-  vim.api.nvim_command(string.format('echo "%s"', result))
-  -- TODO: handle failure?
+  if (result == nil) then
+    vim.api.nvim_command(string.format('echo "%s"', "FAIL: could not attach"))
+  end
+end
+
+-- TODO
+local function buffer_ignore()
 end
 
 
@@ -67,6 +63,7 @@ local function status_update(err, data, addr, flags)
     return
   end
 
+  -- XXX: can this fail?
   vim.schedule(function()
     vim.api.nvim_command(string.format('echo "%s"', data))
   end)
@@ -78,6 +75,10 @@ local function status_update(err, data, addr, flags)
   -- vim.api.nvim_set_option('statusline', addr)
 end
 
+--------------------------------------------------------------------------------
+-- Set up CLAVM ----------------------------------------------------------------
+--------------------------------------------------------------------------------
+
 local function test()
   local content = "this is the truth"
   local socket = vim.loop.new_udp()
@@ -87,34 +88,21 @@ local function test()
   end
 end
 
-local function status()
-  local socket = vim.loop.new_udp()
+local function status_listen()
+  socket = vim.loop.new_udp()
   local result = vim.loop.udp_bind(socket, "127.0.0.1", 10001)
-  -- TODO: handle failed bind
-  vim.api.nvim_command(string.format('echo "%s"', result))
+  if (result == nil) then
+    vim.api.nvim_command(string.format('echo "%s"', "FAIL: could not bind"))
+  end
   vim.loop.udp_recv_start(socket, status_update)
-  --vim.loop.udp_recv_start(socket, vim.schedule_wrap(status_update))
-end
-
-
---------------------------------------------------------------------------------
---------------------------------------------------------------------------------
---------------------------------------------------------------------------------
-
---
---
-function setup()
-  -- TODO: maybe create sockets here?
 end
 
 
 -- export the API of this plugin
 --
 return {
-  setup = setup,
-  spurt = spurt,
-  status = status,
-  test = test,
+  status_listen = status_listen,
+  buffer_listen = buffer_listen,
 }
 
 
