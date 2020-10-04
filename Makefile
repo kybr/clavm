@@ -36,7 +36,7 @@ LINK_TCC += -ldl
 LINK_TCC += -lpthread
 endif
 
-_: clavm clavm-submit clavm-wav test
+all: clavm clavm-submit clavm-wav test
 
 %.o : %.cpp
 	$(CXX) -c $<
