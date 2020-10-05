@@ -111,6 +111,7 @@ float *C::process(int N, int sample, int samplerate) {
 //
 
 void error_handler(void *opaque, const char *msg) {
+  static_cast<std::string *>(opaque)->clear();
   static_cast<std::string *>(opaque)->append(msg);
 }
 
