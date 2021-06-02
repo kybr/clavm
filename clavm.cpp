@@ -81,8 +81,8 @@ int main(int argc, char* argv[]) {
     dac.openStream(&oParams, nullptr, RTAUDIO_FLOAT32, sampleRate, &frameCount,
                    process, &hotswap);
 #else
-    dac.openStream(&oParams, &iParams, RTAUDIO_FLOAT32, sampleRate, &frameCount,
-                   process, &hotswap);
+    dac.openStream(&oParams, nullptr /* &iParams */, RTAUDIO_FLOAT32,
+                   sampleRate, &frameCount, process, &hotswap);
 #endif
 
     if (FRAME_COUNT != frameCount) {
