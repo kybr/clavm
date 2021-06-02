@@ -9,11 +9,15 @@
 local socket_send = nil
 
 --------------------------------------------------------------------------------
--- Listen for buffer changes; Spurt contents via UDP 127.0.0.1:9999 ------------
+-- Listen for buffer changes; Spurt contents via UDP 127.0.0.1:11000 -----------
 --------------------------------------------------------------------------------
 
 -- local function text_change(_, bufnr, changedtick, firstline, lastline, new_lastline, old_byte_size, old_utf32_size, old_utf16_size)
 local function text_change(_, bufnr)
+
+  vim.schedule(function()
+    vim.api.nvim_command(string.format('echo "text changed"'))
+  end)
 
   -- get all the lines in the current buffer and make a single string
   --
@@ -49,7 +53,7 @@ local function text_change(_, bufnr)
   end
 
   -- send a datagram with the content to the server
-  local bytes = vim.loop.udp_try_send(socket_send, data, "127.0.0.1", 9999)
+  local bytes = vim.loop.udp_try_send(socket_send, data, "127.0.0.1", 11000)
   if (bytes == nil) then
     -- depends on OS settings; fails at 9216 bytes for me
     vim.api.nvim_command(string.format('echo "%s"', "FAIL: udp send"))
@@ -64,13 +68,23 @@ local function buffer_listen()
   if (result == nil) then
     vim.api.nvim_command(string.format('echo "%s"', "FAIL: could not attach"))
   end
+  vim.schedule(function()
+    vim.api.nvim_command(string.format('echo "listening to buffer"'))
+  end)
+end
+
+
+local function nothing(_, bufnr)
 end
 
 local function buffer_ignore()
-  local result = vim.api.nvim_buf_detach(0)
+  local result = vim.api.nvim_buf_attach(0, false, {on_lines = nothing})
   if (result == nil) then
     vim.api.nvim_command(string.format('echo "%s"', "FAIL: could not detach"))
   end
+  vim.schedule(function()
+    vim.api.nvim_command(string.format('echo "ignoring buffer"'))
+  end)
 end
 
 
@@ -155,6 +169,7 @@ end
 return {
   status_listen = status_listen,
   buffer_listen = buffer_listen,
+  buffer_ignore = buffer_ignore,
   test_status_listen = test_status_listen,
 }
 -- Make NeoVim commands to call these exported functions:
@@ -163,6 +178,21 @@ return {
 -- command! StatusListen lua require"clavm".status_listen()
 -- command! TestStatusListen lua require"clavm".test_status_listen()
 --
+
+
+-- " ----------------------
+-- " C.L.A.V.M.
+-- " ----------------------
+-- " load and start CLAVM
+-- "lua require'clavm'.status_listen()
+-- command! BufferListen lua require"clavm".buffer_listen()
+-- command! BufferIgnore lua require"clavm".buffer_ignore()
+-- command! StatusListen lua require"clavm".status_listen()
+-- command! StatusIgnore lua require"clavm".status_ignore()
+-- "command! TestStatusListen lua require"clavm".test_status_listen()
+-- then:
+-- :BufferListen
+-- :BufferIgnore
 
 
 -- Notes
