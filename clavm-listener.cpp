@@ -26,12 +26,28 @@ int main(int argc, char* argv[]) {
   // XXX send a message to Vim explaining that this clavm-submit-listener was
   // restarted (perhaps after an error).
   //
+  lo::Address vim("localhost", "11001");
 
-  liblo.add_method("code", "b", [](lo_arg** argv, int) {
+  {
+    // lo::Message message;
+    // message.add("listener started (after crash?)");
+    // vim.send("/s", message);
+    vim.send("/s", "s", "listener started (after crash?)");
+  }
+
+  printf("listener started (after a crash?)\n");
+
+  //
+  // OSC callback!
+  //
+  liblo.add_method("/c", "ib", [&vim](lo_arg** argv, int) {
     Timer timer;
 
-    unsigned char* data = (unsigned char*)lo_blob_dataptr((lo_blob)argv[0]);
-    int size = lo_blob_datasize((lo_blob)argv[0]);
+    int count = argv[0]->i;
+    printf("%d ", count);
+
+    unsigned char* data = (unsigned char*)lo_blob_dataptr((lo_blob)argv[1]);
+    int size = lo_blob_datasize((lo_blob)argv[1]);
     std::string code(data, data + size);
     // printf("%s", code.c_str());
 
@@ -76,11 +92,11 @@ int main(int argc, char* argv[]) {
     // XXX we should not have to repackage the code here since it is already
     // exactly the code blob that CLAVM expects; FIXME
     //
-    lo::Address address("localhost", "9000");
+    lo::Address clavm("localhost", "9000");
     lo::Blob blob(code.size(), code.data());
     lo::Message message;
     message.add(blob);
-    address.send("code", message);
+    clavm.send("code", message);
     timer.check("send");
 
     //
@@ -92,11 +108,21 @@ int main(int argc, char* argv[]) {
     timer.print("%s:%3.1lf ");
     printf("\n");
     fflush(stdout);
+
+    {
+      std::string status;
+      timer.string(status);
+      // lo::Message message;
+      // message.add(status.c_str());
+      vim.send("/s", "is", count, status.c_str());  // XXX now include ERRORs!
+      // printf("%s\n", status.c_str());
+    }
+
     return 0;
   });
 
   liblo.start();
-  printf("Hit enter to quit...\n");
+  // printf("Hit enter to quit...\n");
   fflush(stdout);
   getchar();
   liblo.stop();

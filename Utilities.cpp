@@ -3,6 +3,7 @@
 #include <chrono>
 #include <fstream>
 #include <iostream>
+#include <sstream>
 #include <string>
 #include <vector>
 
@@ -18,6 +19,14 @@ void Timer::check(const char* name) {
 void Timer::print(const char* pattern) {
   for (auto e : entry)  //
     printf(pattern, e.name.c_str(), e.time);
+}
+
+void Timer::string(std::string& into) {
+  std::ostringstream stream;
+  stream.precision(2);
+  for (auto e : entry)  //
+    stream << e.name << ":" << e.time << " ";
+  into = stream.str();
 }
 
 void Timer::delta() {

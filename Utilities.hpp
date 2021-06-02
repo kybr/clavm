@@ -22,6 +22,7 @@ class Timer {
 
   void check(const char* name);
   void print(const char* pattern = "%s:%g ");
+  void string(std::string& into);
   void delta();
 
   void percent();
