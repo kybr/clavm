@@ -21,14 +21,17 @@ int main(int argc, char* argv[]) {
 
   HotSwap hotswap;
 
-  liblo.add_method("code", "b", [&hotswap](lo_arg** argv, int) {
-    unsigned char* data = (unsigned char*)lo_blob_dataptr((lo_blob)argv[0]);
-    int size = lo_blob_datasize((lo_blob)argv[0]);
+  liblo.add_method("/c", "ib", [&hotswap](lo_arg** argv, int) {
+    int version = argv[0]->i;
+
+    unsigned char* data = (unsigned char*)lo_blob_dataptr((lo_blob)argv[1]);
+    int size = lo_blob_datasize((lo_blob)argv[1]);
     std::string code(data, data + size);
     // printf("%s", code.c_str());
 
     if (hotswap.compile(code.c_str())) {
-      printf("~~~ compiled ~~~\n");
+      printf(".");
+      fflush(stdout);
     } else {
       // this should not happen
       printf("%s\n", hotswap.error());

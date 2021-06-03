@@ -36,7 +36,7 @@ LINK_TCC += -ldl
 LINK_TCC += -lpthread
 endif
 
-all: clavm clavm-submit clavm-listener clavm-wav test
+all: clavm clavm-submit clavm-broker clavm-wav test
 
 %.o : %.cpp
 	$(CXX) -c $<
@@ -59,7 +59,7 @@ clavm : clavm.o TCC.o HotSwap.o RtAudio.o
 clavm-submit : clavm-submit.o TCC.o Utilities.o
 	$(CXX) $^ -o $@ $(LINK_TCC) -llo
 
-clavm-listener : clavm-listener.o TCC.o Utilities.o
+clavm-broker : clavm-broker.o TCC.o Utilities.o
 	$(CXX) $^ -o $@ $(LINK_TCC) -llo
 
 clavm-wav : clavm-wav.o TCC.o Utilities.o
@@ -69,4 +69,4 @@ test : test.o TCC.o HotSwap.o
 	$(CXX) $^ -o $@ $(LINK_TCC)
 
 clean:
-	rm *.o test clavm clavm-submit clavm-wav
+	rm *.o test clavm clavm-submit clavm-wav clavm-broker

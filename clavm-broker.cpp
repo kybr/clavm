@@ -43,8 +43,8 @@ int main(int argc, char* argv[]) {
   liblo.add_method("/c", "ib", [&vim](lo_arg** argv, int) {
     Timer timer;
 
-    int count = argv[0]->i;
-    printf("%d ", count);
+    int version = argv[0]->i;
+    printf("%d ", version);
 
     unsigned char* data = (unsigned char*)lo_blob_dataptr((lo_blob)argv[1]);
     int size = lo_blob_datasize((lo_blob)argv[1]);
@@ -95,8 +95,9 @@ int main(int argc, char* argv[]) {
     lo::Address clavm("localhost", "9000");
     lo::Blob blob(code.size(), code.data());
     lo::Message message;
+    message.add(version);
     message.add(blob);
-    clavm.send("code", message);
+    clavm.send("/c", message);
     timer.check("send");
 
     //
@@ -114,7 +115,7 @@ int main(int argc, char* argv[]) {
       timer.string(status);
       // lo::Message message;
       // message.add(status.c_str());
-      vim.send("/s", "is", count, status.c_str());  // XXX now include ERRORs!
+      vim.send("/s", "is", version, status.c_str());  // XXX now include ERRORs!
       // printf("%s\n", status.c_str());
     }
 

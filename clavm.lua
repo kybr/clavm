@@ -21,13 +21,7 @@ local _version = 0 -- XXX make this a dictionary
 --------------------------------------------------------------------------------
 
 
-local function text_change(_, bufnr)
-
-  -- here is the argument list:
-  -- (_, bufnr, changedtick, firstline, lastline, new_lastline, old_byte_size, old_utf32_size, old_utf16_size)
-
-  -- TODO: maybe throttle here; return quick if the text did not actually change
-  -- probably hashing is the only way to detect this.
+local function send_code()
 
 
   -- get all the lines in the current buffer and make a single string
@@ -115,39 +109,6 @@ local function text_change(_, bufnr)
 end
 
 
-local function buffer_listen()
-  -- TODO: check the current buffer number and fail if we already listen
-  -- XXX send out a message to the server saying we are listening to file X
-
-
-  -- attach a listener to the current buffer (0 means current buffer)
-  local result = vim.api.nvim_buf_attach(0, false, {on_lines = text_change})
-  -- XXX try on_bytes instead?
-  if (result == nil) then
-    vim.api.nvim_command(string.format('echo "%s"', "FAIL: could not attach"))
-  end
-
-
-  vim.schedule(function()
-    vim.api.nvim_command(string.format('echo "listening to buffer"'))
-  end)
-end
-
-
-local function nothing(_, bufnr)
-end
-
-
-local function buffer_ignore()
-  local result = vim.api.nvim_buf_attach(0, false, {on_lines = nothing})
-  if (result == nil) then
-    vim.api.nvim_command(string.format('echo "%s"', "FAIL: could not detach"))
-  end
-  vim.schedule(function()
-    vim.api.nvim_command(string.format('echo "ignoring buffer"'))
-  end)
-end
-
 
 --------------------------------------------------------------------------------
 -- Listen for status information on UDP; Show on the status line ---------------
@@ -233,8 +194,7 @@ end
 -- export the API of this plugin
 -- 
 return {
-  buffer_listen = buffer_listen,
-  buffer_ignore = buffer_ignore,
+  send_code = send_code,
   status_listen = status_listen,
   status_ignore = status_ignore,
   test_status_listen = test_status_listen,
@@ -243,8 +203,6 @@ return {
 
 -- Make NeoVim commands to call these exported functions:
 --
--- command! BufferListen lua require"clavm".buffer_listen()
--- command! BufferIgnore lua require"clavm".buffer_ignore()
 -- command! StatusListen lua require"clavm".status_listen()
 -- command! StatusIgnore lua require"clavm".status_ignore()
 -- command! TestStatusListen lua require"clavm".test_status_listen()
