@@ -9,6 +9,11 @@
 #define DR_WAV_IMPLEMENTATION
 #include "dr_wav.h"
 
+//
+// add logging here
+//
+//
+
 int main(int argc, char* argv[]) {
   std::string code;
   if (argc > 1)
@@ -38,6 +43,9 @@ int main(int argc, char* argv[]) {
 
   for (int i = 0; i < sampleCount; i += 1024) {
     float* audio = c.process(1024, i, sampleRate);
+    // for (int j = 0; j < 1024; j++) {
+    //     //printf("%f,%f\n", audio[j]);
+    // }
     drwav_uint64 framesWritten = drwav_write_pcm_frames(&wav, 1024, audio);
     assert(framesWritten == 1024);
   }
