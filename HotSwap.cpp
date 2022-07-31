@@ -9,11 +9,13 @@
 HotSwap::HotSwap() {
   active = new Compiler;
   available = new Compiler;
-#ifdef __PI__
-  assert(available->load_dynamic("dynamic/lib/libtcc.so"));
-#else
-  assert(available->load_dynamic("dynamic/lib/libtcc.dylib"));
-#endif
+
+  if (!available->load_dynamic("dynamic/lib/libtcc.so"))
+    if (!available->load_dynamic("dynamic/lib/libtcc.dylib")) {
+      // XXX test for DLL on windows?
+      printf("EXIT: Failed to load dynamic library\n");
+      exit(8);
+    }
 
   active->compile("void play(void) {}");
   new_code_ready.store(false);

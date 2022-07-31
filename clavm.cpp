@@ -1,7 +1,6 @@
 #include <lo/lo.h>
 #include <lo/lo_cpp.h>
 
-#include <cassert>
 #include <iostream>
 #include <thread>
 
@@ -50,7 +49,10 @@ int main(int argc, char* argv[]) {
 
     float* block = hotswap->process(frameCount, sample, SAMPLE_RATE);
 
-    assert(block != nullptr);
+    if (block == nullptr) {
+      printf("block is null\n");
+      exit(7);
+    }
 
     for (unsigned i = 0; i < 2 * frameCount; ++i)  //
       o[i] = block[i];

@@ -192,7 +192,7 @@ bool C::load_dynamic(const char *path) {
 
   if (handle == nullptr) {
     printf("DLOPEN ERROR:%s\n", dlerror());
-    exit(1);
+    return false;
   }
 
   _new = (type_tcc_new)dlsym(handle, "tcc_new");
