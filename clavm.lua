@@ -26,7 +26,8 @@ local function send_code()
 
   -- get all the lines in the current buffer and make a single string
   --
-  local lines = vim.api.nvim_buf_get_lines(bufnr, 0, -1, true)
+  local lines = vim.api.nvim_buf_get_lines(0, 0, -1, true)
+  -- XXX fix local lines = vim.api.nvim_buf_get_lines(bufnr, 0, -1, true)
   local blob = table.concat(lines, "\n")
 
 
@@ -48,6 +49,7 @@ local function send_code()
   -- the length of the code
   local _length = string.len(blob)
   local length = string.char(
+  -- bit does not come with plain lua?
     bit.band(bit.rshift(_length, 24), 255),
     bit.band(bit.rshift(_length, 16), 255),
     bit.band(bit.rshift(_length, 8), 255),
