@@ -2,6 +2,7 @@ dynamic/
 static/
 clavm
 clavm-submit
+clavm-broker
 clavm-wav
 test
 *.o
