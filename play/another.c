@@ -4,6 +4,7 @@ int* _int(int);
 double _time();
 float _rate();
 void _out(float, float);
+double sin(double);
 
 float uniform() {
   // from the FAUST:
@@ -59,8 +60,6 @@ float mtof(float m) {
   // return 440.0f * powf(2.0f, (m - 69.0f) / 12.0f);
 }
 
-double sin(double);
-
 // http://scp.web.elte.hu/papers/synthesis1.pdf
 float quasi(float frequency, float filter) {
   float* z = _float(2);
@@ -81,8 +80,10 @@ float accum(float hz) {
 }
 
 void play() {
-  float time = accum(4.0);
+  float time = _time() * 1.7;
+  //float time = accum(1.5); // broken? weird slowdowns
 
+  // snare drum
   float f = 0;
   {
     float t = time;
@@ -105,6 +106,7 @@ void play() {
     f *= e;
   }
 
+  // bass synth
   float v = 0;
   {
     float t = time;
@@ -119,6 +121,7 @@ void play() {
     v *= t;
   }
 
+  // harmony synth
   float s = 0;
   {
     float t = time;
@@ -133,12 +136,14 @@ void play() {
     s *= t;
   }
 
+  // ?
   float c = 0;
   {
     float t = frac(_time() * 8);
     c = edge(t) * uniform();
   }
 
+  // "melody" synth
   float w = 0;
   {
     float t = time;
@@ -154,11 +159,12 @@ void play() {
   }
 
   float o = 0;
-  o += 0.2 * c;
-  o += 0.2 * s;
-  o += 0.2 * f;
-  o += 0.3 * v;
-  o += 0.2 * w;
+  o += 0.2 * c; // click (unfinished kick drum)
+  o += 0.2 * s; // harmony
+  o += 0.2 * f; // snare drum
+  o += 0.3 * v; // bass
+  o += 0.2 * w; // high notes
 
+  o *= 0.2;
   _out(o, o);
 }
