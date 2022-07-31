@@ -5,6 +5,7 @@ CXX = c++
 CXX += -std=c++11
 CXX += -g
 CXX += -Wall
+CXX += -I/opt/homebrew/include
 #CXX += -O2
 
 
@@ -19,6 +20,7 @@ endif
 DEFINE_AUDIO =
 ifeq "$(OS)" "Darwin"
 DEFINE_AUDIO += -D__MACOSX_CORE__
+DEFINE_AUDIO += -Wdeprecated-declarations
 else
 DEFINE_AUDIO += -D__LINUX_ALSA__
 endif
@@ -31,6 +33,7 @@ LINK_TCC += -L static/lib
 LINK_TCC += -ltcc
 LINK_TCC += static/lib/libtcc.a
 ifeq "$(OS)" "Darwin"
+  LINK_TCC += -L/opt/homebrew/lib
 else
 LINK_TCC += -ldl
 LINK_TCC += -lpthread
@@ -51,7 +54,7 @@ TCC.o : TCC.cpp
 	$(CXX) -I static/include -c $<
 
 RtAudio.o : RtAudio.cpp
-	$(CXX) $(DEFINE_AUDIO) -c $< 
+	$(CXX) $(DEFINE_AUDIO) -c $<
 
 clavm : clavm.o TCC.o HotSwap.o RtAudio.o
 	$(CXX) $^ -o $@ $(LINK_TCC) $(LINK_AUDIO) -llo
