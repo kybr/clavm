@@ -58,11 +58,11 @@ extern "C" float *_float(int many) {
   return pointer;
 }
 
-static float _int_memory[10000];
+static int _int_memory[10000];
 static int _int_memory_index = 0;
 
-extern "C" float *_int(int many) {
-  float *pointer = &_int_memory[_int_memory_index];
+extern "C" int *_int(int many) {
+  int *pointer = &_int_memory[_int_memory_index];
   _int_memory_index += many;
   return pointer;
 }
