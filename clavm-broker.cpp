@@ -1,5 +1,5 @@
 //
-// C.A.V.M.
+// C•L•A•V•M
 //
 
 #include <lo/lo.h>
@@ -82,6 +82,8 @@ int main(int argc, char* argv[]) {
 
     float* audio = c.process(1024, 0, 44100);
     audio[0] = 0;
+
+    // check for nans!!! and reject
 
     timer.check("test");
 
