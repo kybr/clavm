@@ -67,7 +67,16 @@ extern "C" int *_int(int many) {
   return pointer;
 }
 
-static float _output_memory[8 * 4096];
+static double _double_memory[10000];
+static int _double_memory_index = 0;
+
+extern "C" double *_double(int many) {
+  double *pointer = &_double_memory[_double_memory_index];
+  _double_memory_index += many;
+  return pointer;
+}
+
+static float _output_memory[256 * 4096];
 static int _output_memory_index = 0;
 
 extern "C" void _out(float left, float right) {
@@ -92,7 +101,8 @@ float *C::process(int N, int sample, int samplerate) {
     //
     _float_memory_index = 0;
     _int_memory_index = 0;
-    _out(0.0, 0.0);
+    _double_memory_index = 0;
+    _out(0.0, 0.0); // clear the current sample (left, right)
 
     // call the 'play' function
     //
@@ -171,6 +181,7 @@ bool C::compile(const std::string &code) {
 
   if (-1 == _relocate(instance, TCC_RELOCATE_AUTO)) {
     error = "Relocate Failed";
+    exit(1);
     return false;
   }
 
@@ -181,8 +192,8 @@ bool C::compile(const std::string &code) {
   }
 
   using InitFunc = void (*)(void);
-  InitFunc init = (InitFunc)_get_symbol(instance, "__init");
-  if (init) init();
+  InitFunc init = (InitFunc)_get_symbol(instance, "init");
+  if (init) init(); // called immediately after a compile
 
   return true;
 }
