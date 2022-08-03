@@ -1,75 +1,46 @@
-" need to expand this section; what settings are required?
+" try:
 "
-set noshowmode
-set laststatus=2
-
-
-" https://developer.apple.com/library/archive/documentation/System/Conceptual/ManPages_iPhoneOS/man3/signal.3.html
-" https://www.gnu.org/software/libc/manual/html_node/Program-Error-Signals.html
+" nvim -u clavm.vim play/sine.c
 "
-let g:shell_error_name = {
-  \ "127": 'command not found',
-  \ "132": 'illegal instruction',
-  \ "134": 'abort program',
-  \ "136": 'floating-point exception',
-  \ "138": 'bus error', 
-  \ "139": 'segmentation fault',
-\}
-
-let g:compile_count = 0
-
-function! g:TryCode()
-  redraw!
-
-  " try the code; collect the output
-  "
-  let l:message = join(systemlist('./clavm-submit', getline(0, line('$'))), '|')
-
-
-  " successful run means we get some statistics back; show them
-  "
-  let g:compile_count += 1
-  if v:shell_error == 0
-    echo g:compile_count . ' ' . l:message
-    return
-  endif
-
-
-  " return 3 means a compile error; show the error we got back
-  "
-  if v:shell_error == 3
-    echohl WarningMsg | echo l:message | echohl None
-    return
-  endif
-
-
-  " if the program crashes with a known exit code, show its name
-  "
-  if has_key(g:shell_error_name, v:shell_error)
-    echohl Error | echo g:shell_error_name[v:shell_error] | echohl None
-    return
-  endif
-
-  echohl Error | echo v:shell_error | echohl None
-endfunction
-
-
-autocmd TextChanged,TextChangedI *.c :call TryCode()
-"autocmd CursorHold,CursorHoldI *.c :call TryCode()
-"autocmd BufWrite *.c :call TryCode()
-
-
-
-" good Vim Script resources
 "
-" https://developer.ibm.com/articles/l-vim-script-1
-" https://developer.ibm.com/tutorials/l-vim-script-2
-" https://developer.ibm.com/tutorials/l-vim-script-3
-" https://developer.ibm.com/tutorials/l-vim-script-4
-" https://developer.ibm.com/tutorials/l-vim-script-5
+
+
+" To use this NeoVim configuration, you have to put this stuff in your main
+" init.vim file.
 "
-" https://developer.ibm.com/tutorials/au-customize_vi
-"
-" https://devhints.io/vimscript
-" https://learnvimscriptthehardway.stevelosh.com
-" http://andrewscala.com/vimscript/
+" call plug#begin()
+" Plug 'embear/vim-localvimrc' " this is the plugin that checks local vimrc
+" call plug#end()
+" let g:localvimrc_sandbox = 0
+" let g:localvimrc_ask = 0
+
+
+"set runtimepath+=./ " need this?
+
+autocmd TextChanged,TextChangedI *.c lua require"clavm".send_code()
+
+" This is not yet implemented.
+" command! StatusListen lua require"clavm".status_listen()
+" command! StatusIgnore lua require"clavm".status_ignore()
+" command! TestStatusListen lua require"clavm".test_status_listen()
+
+filetype plugin indent on
+syntax on
+
+" I like these settings. Maybe you will as well
+set foldmethod=marker
+set tabstop=2 softtabstop=2 shiftwidth=2 expandtab smarttab autoindent
+set incsearch ignorecase smartcase hlsearch
+set wildmode=longest,list,full wildmenu " huh?
+
+" Maybe I'll use these later
+"set ruler laststatus=2 showcmd showmode
+"set list listchars=trail:»,tab:»-
+"set fillchars+=vert:\ 
+"set wrap breakindent
+"set encoding=utf-8
+"set textwidth=0
+"set hidden
+"set number
+"set title
+
