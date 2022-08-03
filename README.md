@@ -1,12 +1,12 @@
 # C.L.A.V.M ~ C Language Audio Virtual Machine
 
-This system enables a user to write little C programs that make sound. A program is compiles and run _immediately_ very quickly (usually less than 3 milliseconds). Right now I use it to make music, but my aim is to use it to 1) teach signals (DSP) and 2) serve as the audio runtime (VM) for music composition and performance with a high-level language like Raku.
+This system enables a user to write little C programs that make sound. A program is compiled and run _immediately_ very quickly (usually less than 3 milliseconds). Right now I use it to make music, but my aim is to use it to 1) teach signals (DSP) and 2) serve as the audio runtime (VM) for music composition and performance with a high-level language like [Raku](https://www.raku.org).
 
 
 
 # Live coding C for music and sound
 
-First, live coding music in C is not my idea! Claude Heiland-Allen (mathr) has been live-coding with C since at least 2012 and his music is great. Please check out clive and mathr. (People have been writing sound and music in C for a very long time.) I learned of clive after I got my system off the ground. The goals, approatches, architectures, and musical outputs of clavm and clive are significantly different.
+First, live coding music in C is not my idea! Claude Heiland-Allen ([mathr](https://mathr.co.uk)) has been live-coding with C since at least 2012 and his music is great. Please check out [clive](https://mathr.co.uk/clive). I learned of clive after I got my system off the ground. The goals, approaches, architectures, and musical outputs of clavm and clive are significantly different.
 
 Second, live-coding sound in C is **physically dangerous** (I am dead serious). Do not live-code in C. Don't. But, if you do decide to live-code in C, then at least, please **do not wear headphones or earbuds or use powerful speakers**. It is very easy to make very loud sounds by making a typo or causing a crash or any of a hundred things. Use your computer speakers or small speakers or keep your monitors at a low level. You were warned.
 
@@ -75,7 +75,7 @@ void play() {
   //  sine function   phasor function
 
   // we hear "beats" at 1 Hz; read about this phenomenon here:
-  // ...
+  // https://en.wikipedia.org/wiki/Beat_(acoustics)
 }
 
 ```
@@ -143,7 +143,7 @@ Get _neovim_ specifically, vim will not work.
 - In neovim, "source" our configuration file
   - `:source .lvimrc`
 - Then take off your headphones; Remove your earbuds. Set the levels on your modest speaker system to a reasonable volume.
-- Now just add a space or change something in the file and you should here some sounds
+- Now just add a space or change something in the file and you should hear some sounds
 
 ```
 git clone https://github.com/kybr/clavm
