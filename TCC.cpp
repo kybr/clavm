@@ -49,7 +49,9 @@ struct C {
 //
 //
 
-static float _float_memory[10000];
+#define MEM_SIZE (10000)
+
+static float _float_memory[MEM_SIZE];
 static int _float_memory_index = 0;
 
 extern "C" float *_float(int many) {
@@ -58,7 +60,7 @@ extern "C" float *_float(int many) {
   return pointer;
 }
 
-static int _int_memory[10000];
+static int _int_memory[MEM_SIZE];
 static int _int_memory_index = 0;
 
 extern "C" int *_int(int many) {
@@ -67,7 +69,8 @@ extern "C" int *_int(int many) {
   return pointer;
 }
 
-static double _double_memory[10000];
+
+static double _double_memory[MEM_SIZE];
 static int _double_memory_index = 0;
 
 extern "C" double *_double(int many) {
@@ -83,6 +86,18 @@ extern "C" void _out(float left, float right) {
   _output_memory[_output_memory_index] = left;
   _output_memory[_output_memory_index + 1] = right;
 }
+
+void zero_memory() {
+  for (int i = 0; i < MEM_SIZE; i++) {
+    _float_memory[i] = 0.0f;
+    _int_memory[i] = 0;
+    _double_memory[i] = 0.0;
+  }
+  // memset(_float_memory, 0, MEM_SIZE);
+  // memset(_int_memory, 0, MEM_SIZE);
+  // memset(_double_memory, 0, MEM_SIZE);
+}
+
 
 extern "C" float _rate(void) { return 44100; }
 
@@ -134,6 +149,8 @@ bool C::compile(const std::string &code) {
     error = "Null Instance";
     return false;
   }
+
+  // zero_memory(); // NO
 
   _set_error_func(instance, (void *)&error, error_handler);
 
