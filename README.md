@@ -144,6 +144,7 @@ Get _neovim_ specifically, vim will not work.
   - `:source .lvimrc`
 - Then take off your headphones; Remove your earbuds. Set the levels on your modest speaker system to a reasonable volume.
 - Now just add a space or change something in the file and you should hear some sounds
+  + If you don't hear anything, see the next section
 
 ```
 git clone https://github.com/kybr/clavm
@@ -156,3 +157,10 @@ make
 nvim play/another.c # in a third terminal
 :source .lvimrc # in neovim
 ```
+
+## If you don't hear anything
+
+You may have introduced a compile error. A program that does not parse will not go on to make sound. Check the `clavm-broker` terminal. Does it suggest that there is a compile error?
+
+CLAVM may be using the wrong audio device. CLAVM chooses the default audio device. The `clavm` terminal should say something about which audio device it chose. Do you recognize that device? Does is work? Configure your OS to have default audio device that will work, then kill the `clavm` program by hitting RETURN or ENTER, then run it again.
+
