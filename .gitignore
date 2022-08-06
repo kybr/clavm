@@ -9,3 +9,7 @@ test
 backup/
 *.pkf
 *.wav
+.DS_Store
+a.out
+bin/
+build/
