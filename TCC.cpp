@@ -69,7 +69,6 @@ extern "C" int *_int(int many) {
   return pointer;
 }
 
-
 static double _double_memory[MEM_SIZE];
 static int _double_memory_index = 0;
 
@@ -98,7 +97,6 @@ void zero_memory() {
   // memset(_double_memory, 0, MEM_SIZE);
 }
 
-
 extern "C" float _rate(void) { return 44100; }
 
 static double _t = 0;
@@ -117,7 +115,7 @@ float *C::process(int N, int sample, int samplerate) {
     _float_memory_index = 0;
     _int_memory_index = 0;
     _double_memory_index = 0;
-    _out(0.0, 0.0); // clear the current sample (left, right)
+    _out(0.0, 0.0);  // clear the current sample (left, right)
 
     // call the 'play' function
     //
@@ -128,6 +126,21 @@ float *C::process(int N, int sample, int samplerate) {
     _output_memory_index += 2;
     _t += sampletime;
   }
+
+  /*
+  // replace bad stuff w/ zero
+  for (int n = 0; n < 2 * N; n++) {
+    switch (fpclassify(_output_memory[n])) {
+      default:
+        break;
+      case FP_INFINITE:
+      case FP_NAN:
+      case FP_SUBNORMAL:
+        _output_memory[n] = 0.0f;
+        // XXX should count and notify
+    }
+  }
+  */
   return _output_memory;
 }
 
@@ -176,17 +189,24 @@ bool C::compile(const std::string &code) {
   }
 
   // add symbols; these must be extern "C"
-  //
+  // (but are theses strictly necessary?)
   _add_symbol(instance, "_rate", (void *)_rate);
   _add_symbol(instance, "_float", (void *)_float);
+  _add_symbol(instance, "_double", (void *)_double);
   _add_symbol(instance, "_int", (void *)_int);
   _add_symbol(instance, "_out", (void *)_out);
   _add_symbol(instance, "_time", (void *)_time);
 
   // tcc_add_symbol(instance, "log", (void*)logf);
   // tcc_add_symbol(instance, "log", (void*)logf);
-  //_add_library(instance, "System");
-  // int result = _add_library(instance, "m");
+
+  // the answer was NO on macOS
+  // if (!_add_library(instance, "System")) {
+  //   printf("did not load 'System'\n");
+  // }
+  // if (!_add_library(instance, "m")) {
+  //   printf("did not load 'm'\n");
+  // }
 
   // XXX broken on linux
   // size = _relocate(instance, nullptr);
@@ -198,6 +218,8 @@ bool C::compile(const std::string &code) {
 
   if (-1 == _relocate(instance, TCC_RELOCATE_AUTO)) {
     error = "Relocate Failed";
+    printf("Relocate Failed\n");
+    fflush(stdout);
     exit(1);
     return false;
   }
@@ -210,7 +232,7 @@ bool C::compile(const std::string &code) {
 
   using InitFunc = void (*)(void);
   InitFunc init = (InitFunc)_get_symbol(instance, "init");
-  if (init) init(); // called immediately after a compile
+  if (init) init();  // called immediately after a compile
 
   return true;
 }
