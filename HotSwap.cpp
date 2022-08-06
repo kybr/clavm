@@ -6,12 +6,16 @@
 
 #include "Compiler.hpp"
 
+#ifndef PREFIX
+#define PREFIX ""
+#endif
+
 HotSwap::HotSwap() {
   active = new Compiler;
   available = new Compiler;
 
-  if (!available->load_dynamic("dynamic/lib/libtcc.so"))
-    if (!available->load_dynamic("dynamic/lib/libtcc.dylib")) {
+  if (!available->load_dynamic(PREFIX "dynamic/lib/libtcc.so"))
+    if (!available->load_dynamic(PREFIX "dynamic/lib/libtcc.dylib")) {
       // XXX test for DLL on windows?
       printf("EXIT: Failed to load dynamic library\n");
       exit(8);
