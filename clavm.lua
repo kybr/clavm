@@ -12,6 +12,7 @@ local socket_receive = nil
 local broker = { address = "127.0.0.1", port = 11000 }
 local clavm = { address = "127.0.0.1", port = 9000 }
 local nvim = { address = "127.0.0.1", port = 10001 }
+local visual = { address = "127.0.0.1", port = 9010 }
 
 local _version = 0 -- XXX make this a dictionary
 
@@ -105,6 +106,14 @@ local function send_code()
   --
   local bytes = vim.loop.udp_try_send(socket_send, data, broker.address, broker.port)
   if (bytes == nil) then
+    -- depends on OS settings; fails at 9216 bytes for me
+    vim.api.nvim_command(string.format('echo "%s"', "FAIL: udp send"))
+  end
+
+  -- send a datagram with the content
+  --
+  local bytes2 = vim.loop.udp_try_send(socket_send, data, visual.address, visual.port)
+  if (bytes2 == nil) then
     -- depends on OS settings; fails at 9216 bytes for me
     vim.api.nvim_command(string.format('echo "%s"', "FAIL: udp send"))
   end
