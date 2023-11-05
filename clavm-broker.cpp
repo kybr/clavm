@@ -11,12 +11,16 @@
 
 #include "Compiler.hpp"
 #include "Utilities.hpp"
+#include "globals.h"
+float* __cc = nullptr;
 
 //
 // cavm-submit
 //
 
 int main(int argc, char* argv[]) {
+  __cc = new float[100];
+
   lo::ServerThread liblo(11000);
   if (!liblo.is_valid()) {
     std::cout << "Nope." << std::endl;

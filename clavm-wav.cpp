@@ -6,6 +6,9 @@
 #include "Compiler.hpp"
 #include "Utilities.hpp"
 
+#include "globals.h"
+float* __cc = nullptr;
+
 #define DR_WAV_IMPLEMENTATION
 #include "dr_wav.h"
 
@@ -15,6 +18,7 @@
 //
 
 int main(int argc, char* argv[]) {
+  __cc = new float[100];
   std::string code;
   if (argc > 1)
     code = slurp(argv[1]);

@@ -11,12 +11,16 @@
 
 #include "Compiler.hpp"
 #include "Utilities.hpp"
+#include "globals.h"
+
+float* __cc = nullptr;
 
 //
 // cavm-submit
 //
 
 int main(int argc, char* argv[]) {
+  __cc = new float[100];
   //
   // load code from file or stdin
   //

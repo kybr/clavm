@@ -4,6 +4,7 @@
 #include <string>
 
 #include "Compiler.hpp"
+#include "globals.h"
 
 typedef void (*TCCErrorFunc)(void *opaque, const char *msg);
 typedef TCCState *(*type_tcc_new)(void);
@@ -98,6 +99,9 @@ void zero_memory() {
 }
 
 extern "C" float _rate(void) { return 44100; }
+
+
+extern "C" float _cc(int i) { return __cc[i]; }
 
 static double _t = 0;
 extern "C" double _time(void) { return _t; }
@@ -194,6 +198,7 @@ bool C::compile(const std::string &code) {
   _add_symbol(instance, "_float", (void *)_float);
   _add_symbol(instance, "_double", (void *)_double);
   _add_symbol(instance, "_int", (void *)_int);
+  _add_symbol(instance, "_cc", (void *)_cc);
   _add_symbol(instance, "_out", (void *)_out);
   _add_symbol(instance, "_time", (void *)_time);
 

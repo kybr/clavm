@@ -53,11 +53,14 @@ endif
 TCC.o : TCC.cpp
 	$(CXX) -I static/include -c $<
 
+RtMidi.o : RtMidi.cpp
+	$(CXX) -D__MACOSX_CORE__ -c $<
+
 RtAudio.o : RtAudio.cpp
 	$(CXX) $(DEFINE_AUDIO) -c $<
 
-clavm : clavm.o TCC.o HotSwap.o RtAudio.o
-	$(CXX) $^ -o $@ $(LINK_TCC) $(LINK_AUDIO) -llo
+clavm : clavm.o TCC.o HotSwap.o RtAudio.o RtMidi.o
+	$(CXX) $^ -o $@ $(LINK_TCC) $(LINK_AUDIO) -llo -framework CoreMidi
 
 clavm-submit : clavm-submit.o TCC.o Utilities.o
 	$(CXX) $^ -o $@ $(LINK_TCC) -llo

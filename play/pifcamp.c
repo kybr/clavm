@@ -97,6 +97,7 @@ double pd(double phase, double x, double y) {
   return y + (phase - x) * x / y;
 }
 
+// Quasi-bandlimited FM sawtooth emulation
 // http://scp.web.elte.hu/papers/synthesis1.pdf
 float quasi(float frequency, float filter) {
   float* z = _float(2);
@@ -118,6 +119,7 @@ float accum(float hz) {
 
 double saw(double t) { return 2.0 * t - 1.0; }
 
+// taylor series expansion of sine
 double sine(double x) {  // expects x on (-1, 1) !!!!!
   double xx = x * x;
   return x * (3.138982 + xx * (-5.133625 + xx * (2.428288 - xx * 0.433645f)));
@@ -133,7 +135,7 @@ double tone(double phase) {
   return f;
 }
 
-// aka scale
+// aka [scale] in Max
 float map(float value, float low, float high, float Low, float High) {
   return Low + (High - Low) * ((value - low) / (high - low));
 }
@@ -149,11 +151,15 @@ float squash(float x, float t, float s) {  //
     return x > -t ? x : s * (x + t) - t;
 }
 
+// for subdividing phasors into bunches of phasors
 float subdiv(float p, float d) {
   p *= d;
   return p - (int)p;
 }
 
+// a way of creating complex rhythms out of hexidecimal numbers
+// 0x8080808080808080 is "four on the floor"
+// 0b10001000100010001000100010001000
 int hex(double phase, int hex) {
   int index = phase * 32;
   int value = 1 & (hex >> (31 - index));
@@ -166,6 +172,8 @@ double onepole(double x, double a) {
   return *history;
 }
 
+// Korg MS20 filter emulation from "The Art of VA Filter Design"
+// https://www.native-instruments.com/fileadmin/ni_media/downloads/pdf/VAFilterDesign_2.1.0.pdf
 double MS20(double x, double f, double q) {
   double* z = _double(2);
   double t = exp(-2 * M_PI * f / _rate());
@@ -175,6 +183,8 @@ double MS20(double x, double f, double q) {
   return z[1];
 }
 
+// Biquad Filter, like [biquad~] in Max
+// https://www.w3.org/TR/audio-eq-cookbook/
 // filter coefficients
 // Direct Form 1, normalized...
 double Biquad(double x0, double b0, double b1, double b2, double a1,
@@ -236,6 +246,7 @@ double Uniform() {
   return *random / 2147483647.0;
 }
 
+// Filter-based drum things
 
 double Kick(double t) {  // on (0, 1)
   return Notch(Highpass(1 - t, 42, 20), 279, 10);
@@ -245,33 +256,46 @@ double Clav(double t) {  // on (0, 1)
   return Notch(Highpass(1 - t, 1174, 20), 279, 10);
 }
 
-double Snare(double t) {  //
-  return MS20((1 - t) * Uniform(), 1200, 2);
+double Snare(double t) {  // on (0, 1)
+  return Notch(Highpass(1 - t, 1174, 20), 279, 10) * Uniform();
 }
 
 // }}}
 
 void play() {
+  // output signals for left (f) and right (g) channels
   float f = 0, g = 0;
 
-  float t = accum(131.0 / 60 * 1.5);
+  // the main clock, counting the "time" that has passed
+  float t = accum(115.0 / 60);
+
+  // an up ramp that is a whole note (bar) long
   float whole = frac(t);
+
   float env = 1 - whole;
 
   float m = sine(saw(phasor(1))) / 2 + 0.5;
-  float n = sine(saw(phasor(10))) / 2 + 0.5;
-  f += subdiv(env, 2) * sine(saw(pd(phasor(111), 0.4 * m, 0.5)));
-  g += subdiv(env, 4) * sine(saw(pd(phasor(55 + n * 2), 0.5, 0.3)));
+  float n = sine(saw(phasor(99))) / 2 + 0.5;
+  f += 0.2 * subdiv(env, 2) * sine(saw(pd(phasor(50), 0.4 * m, 0.5)));
+  g += 0.2 * subdiv(env, 4) * sine(saw(pd(phasor(50 + n * 48), 0.5, 0.3)));
 
-  float kick = Kick(whole);
+  float asd = 400;
 
-  f *= 0.25;
-  g *= 0.25;
+  float qu = quasi(asd, 0.9) + quasi(asd+1, 0.7); 
+  qu *= env;
+  float kick = Kick(whole) ;
+
+  f += qu * 0.05;
+  g += qu * 0.05;
+
   f += 1.1 * kick;
-  g += 0.3 * Clav(subdiv(whole, 4));
+  g += 0.3 * Clav(subdiv(whole, 2));
+  g += 0.8 * Snare(subdiv(whole, 1));
+
+  f *= 0.5;
+  g *= 0.5;
 
   _out(f, g);
-
 }
 
 
@@ -300,3 +324,4 @@ void play() {
 // - MS20 everything
 // - filter fade out
 // }}}
+//

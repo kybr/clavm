@@ -5,6 +5,8 @@
 #include <vector>
 
 #include "HotSwap.hpp"
+#include "globals.h"
+float* __cc = nullptr;
 
 const char* code = R"(
 float* _float(int);
@@ -34,6 +36,7 @@ void play(void) {
 )";
 
 int main(int argc, char* argv[]) {
+  __cc = new float[100];
   HotSwap hotswap;
 
   bool run = true;
