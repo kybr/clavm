@@ -7,19 +7,19 @@
 
 class Client : public Shared {
 public:
-  Client(const char* completedWriteName, const char* completedReadName, const char* shmName)
-    : Shared(completedWriteName, completedReadName, shmName) {
+  Client(const char* clientDoneName, const char* serverDoneName, const char* sharedMemory)
+    : Shared(clientDoneName, serverDoneName, sharedMemory) {
 
     // unlink the semaphores in case they already exist
     //
-    sem_unlink(completedWriteName);
-    sem_unlink(completedReadName);
+    sem_unlink(clientDoneName);
+    sem_unlink(serverDoneName);
     // XXX check for failure
 
     // create semaphores
     //
-    completedWrite = sem_open(completedWriteName, O_CREAT, 0666, 0);
-    completedRead = sem_open(completedReadName, O_CREAT, 0666, 0);
+    clientDone = sem_open(clientDoneName, O_CREAT, 0666, 0);
+    serverDone = sem_open(serverDoneName, O_CREAT, 0666, 0);
     // XXX check for failure
 
     // open shared memory read/write
@@ -50,10 +50,10 @@ public:
   ~Client() {
     munmap(data, sizeof(SharedMemoryData));
     close(shm_fd);
-    sem_close(completedWrite);
-    sem_close(completedRead);
-    sem_unlink(completedWriteName);
-    sem_unlink(completedReadName);
+    sem_close(clientDone);
+    sem_close(serverDone);
+    sem_unlink(clientDoneName);
+    sem_unlink(serverDoneName);
   }
 
   bool sendRequest(const char* message) {
@@ -61,11 +61,11 @@ public:
     strcpy(data->message, message);
 
     say("Client: Signaling write complete");
-    sem_post(completedWrite);
+    sem_post(clientDone);
 
     say("Client: Waiting for read complete");
     for (int i = 0; i < 5; i++) {
-      if (sem_trywait(completedRead) == 0) {
+      if (sem_trywait(serverDone) == 0) {
         return true;
       }
       usleep(1000); // wait 1ms

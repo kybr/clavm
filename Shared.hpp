@@ -8,17 +8,17 @@
 #include "SharedMemoryData.hpp"
 
 struct Shared {
-  const char* completedWriteName;
-  const char* completedReadName;
+  const char* clientDoneName;
+  const char* serverDoneName;
   const char* sharedMemoryName;
   int shm_fd;
-  sem_t* completedWrite;
-  sem_t* completedRead;
+  sem_t* clientDone;
+  sem_t* serverDone;
   SharedMemoryData* data;
-  Shared(const char* completedWriteName, const char* completedReadName,
+  Shared(const char* clientDoneName, const char* serverDoneName,
          const char* sharedMemoryName)
-      : completedWriteName(completedWriteName),
-        completedReadName(completedReadName),
+      : clientDoneName(clientDoneName),
+        serverDoneName(serverDoneName),
         sharedMemoryName(sharedMemoryName) {}
 };
 
