@@ -39,7 +39,7 @@ LINK_TCC += -ldl
 LINK_TCC += -lpthread
 endif
 
-all: clavm clavm-submit clavm-broker clavm-wav test
+all: clavm clavm-submit clavm-broker clavm-wav test server client
 
 %.o : %.cpp
 	$(CXX) -c $<
@@ -74,5 +74,11 @@ clavm-wav : clavm-wav.o TCC.o Utilities.o
 test : test.o TCC.o HotSwap.o
 	$(CXX) $^ -o $@ $(LINK_TCC)
 
+server : server.o HotSwap.o TCC.o
+	$(CXX) $^ -o $@ $(LINK_TCC)
+
+client : client.o
+	$(CXX) $^ -o $@
+
 clean:
-	rm *.o test clavm clavm-submit clavm-wav clavm-broker
+	rm *.o test clavm clavm-submit clavm-wav clavm-broker client server
