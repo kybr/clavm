@@ -49,7 +49,7 @@ int main(int argc, char* argv[]) {
     };
 
     while (run) {
-      sprintf(buffer, code, mtof(m));
+      snprintf(buffer, sizeof(buffer), code, mtof(m));
       m += 0.7;
       if (m > 127)  //
         m = 0;
