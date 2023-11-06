@@ -1,3 +1,6 @@
+(The information on this page is a bit out of date. I am in the process of a rewrite.)
+
+
 # C.L.A.V.M ~ C Language Audio Virtual Machine
 
 This system enables a user to write little C programs that make sound. A program is compiled and run _immediately_ very quickly (usually less than 3 milliseconds). Right now I use it to make music, but my aim is to use it to 1) teach signals (DSP) and 2) serve as the audio runtime (VM) for music composition and performance with a high-level language like [Raku](https://www.raku.org).
