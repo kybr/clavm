@@ -1,0 +1,28 @@
+This is the last thing I worked on (2023-11-05).
+
+I got memory-mapped shared memory between processes and learned about OS semaphores to signal between processes. deadlocks are a problem. I must think carefully about how the parts interact.
+
+this shared memory strategy could be useful for hotswapping TCC as well. Two processes, each with a TCC instance, share memory: the state of the audio calculations. A third process spawns the pair and manages swapping between them, one acting as a compiler and the other calculating samples.
+
+One takes over where the other left off because they share a memory.
+
+This might get rid of the mysterious "relocate failed" problem in the current hotswap compiler implementation
+
+complicated!
+
+If one crashes, do we restart them both? Or, just the one that crashed? How do we distribute parameter data such as that from MIDI or OSC?
+
+The audio server process just needs to keep the pair of processes alive.
+
+IT will also have to manage the swapping between the two processes.
+
+In the user code, globals and static variables will be broken because they will not be synchronized. the only shared memory is the explicitly shared memory. That's ok. globals and statics are generally frowned upon.
+
+the file "client.cpp" now holds my latest work. i was having trouble with:
+
+- if the server starts before the client, the semaphore opens fails
+  * fix was just creating the semaphores on the server as well as the client; no harm
+- if the client starts before the server, then the client gives up because the server is not responding
+  * fix was replacing the shell out (calling system()) with a call to fork which i assume is much faster than shelling out
+
+
