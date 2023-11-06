@@ -25,4 +25,8 @@ the file "client.cpp" now holds my latest work. i was having trouble with:
 - if the client starts before the server, then the client gives up because the server is not responding
   * fix was replacing the shell out (calling system()) with a call to fork which i assume is much faster than shelling out
 
+it looks like posix_spawn is faster than fork. 
+
+    https://stackoverflow.com/questions/2731531/faster-forking-of-large-processes-on-linux
+
 
