@@ -52,4 +52,8 @@ submit.c (knows how to send clavm a string and get back a string)
 clavm.cpp (server to Neovim, client to TCC processes)
 server.cpp (pair of TCC processes that share memory)
 
+submit might need to be a shared library so that lua can do FFI.
+
+
+
 

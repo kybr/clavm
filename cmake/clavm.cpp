@@ -27,12 +27,19 @@ int main() {
   for (int i = 0; i < 5; i++) {
     printf("Waiting on 'compile'\n");
     sem_wait(compile);
-    printf("Compiling...\n");
-    usleep(1000000);
+    printf("Signaling 'tcc_*'\n");
+    sem_post(tcc_a);
+    printf("Waiting on 'tcc_*'\n");
+    sem_wait(tcc_a);
+
+    printf("Swapping\n");
+    //sem_t tmp = tcc_a;
+    //tcc_a = tcc_b;
+    //tcc_b = tmp;
+
     printf("Signaling 'compile'\n");
     sem_post(compile);
   }
-  sem_post(submit);
 
   sem_unlink("submit");
   sem_unlink("compile");
