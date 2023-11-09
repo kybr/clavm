@@ -1,14 +1,8 @@
-#include "Help.h"
-
-#include <semaphore.h>
-#include <signal.h>
-#include <spawn.h>
-#include <unistd.h>
-
 #include <iostream>
-#include <thread>
 
-void spawn(pid_t*, const char*, const char*);
+#include "Help.h"
+#include "Process.h"
+#include "Semaphore.h"
 
 int main() {
   // create shared memory (CODE, AUDIO)
@@ -31,10 +25,13 @@ int main() {
   sem_t* tcc_compiler = sem_open("tcc_a", O_CREAT, 0666, 0);
   sem_t* tcc_executer = sem_open("tcc_b", O_CREAT, 0666, 0);
 
-  pid_t tcc_a;
-  spawn(&tcc_a, "tcc", "tcc_a");
-  pid_t tcc_b;
-  spawn(&tcc_b, "tcc", "tcc_b");
+  Process tcc_a;
+  char const* const a[3] = {"tcc", "tcc_a", nullptr};
+  tcc_a.spawn(a);
+
+  Process tcc_b;
+  char const* const b[3] = {"tcc", "tcc_b", nullptr};
+  tcc_a.spawn(b);
 
   TRACE("CLAVM: Started CLAVM\n");
 
@@ -62,8 +59,8 @@ int main() {
   sem_unlink("tcc_a");
   sem_unlink("tcc_b");
 
-  kill(tcc_a, SIGINT);
-  kill(tcc_b, SIGINT);
+  tcc_a.kill();
+  tcc_b.kill();
 
   return 0;
 }
