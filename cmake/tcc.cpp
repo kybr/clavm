@@ -1,6 +1,9 @@
 #include <semaphore.h>
-#include <unistd.h> // usleep
+#include <unistd.h>  // usleep
+
 #include <iostream>
+
+#include "Help.h"
 int main(int argc, char* argv[]) {
   if (argc != 2) return 1;
   // create shared memory (CODE)
@@ -11,21 +14,23 @@ int main(int argc, char* argv[]) {
   // [write] CODE
   // post(tcc_a)
 
-  sem_t* semaphore = sem_open(argv[1], 0);
-  if (semaphore == SEM_FAILED) {
-    printf("Could not open 'tcc_*'; Probably CLAVM is not running\n");
+  TRACE("%s: Opening '%s'\n", argv[1], argv[1]);
+  sem_t* tcc_ = sem_open(argv[1], 0);
+  if (tcc_ == SEM_FAILED) {
+    TRACE("%s: Could not open 'tcc_*'; Probably CLAVM is not running\n",
+          argv[1]);
     exit(1);
   }
 
-  for (int i = 0; i < 5; i++) {
-    printf("Waiting on '%s'\n", argv[1]);
-    sem_wait(semaphore);
+  while (true) {
+    TRACE("%s: Waiting on '%s'\n", argv[1], argv[1]);
+    sem_wait(tcc_);
 
-    printf("Compiling...\n");
-    usleep(1000000);
+    TRACE("%s: Compiling...\n", argv[1]);
+    // usleep(1000000);
 
-    printf("Signaling '%s'\n", argv[1]);
-    sem_post(semaphore);
+    TRACE("%s: Signaling '%s'\n", argv[1], argv[1]);
+    sem_post(tcc_);
   }
 
   return 0;
