@@ -3,6 +3,7 @@
 #include "Help.h"
 #include "Process.h"
 #include "Semaphore.h"
+#include "SharedMemory.h"
 
 int main() {
   // create shared memory (CODE, AUDIO)
@@ -14,6 +15,8 @@ int main() {
   // maybe swap
   // [write] CODE
   // post(done)
+
+  auto* code = new SharedMemory("/code", CODE_SIZE, true);
 
   // make these fail if the semaphores are created.
   //

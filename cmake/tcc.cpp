@@ -1,5 +1,6 @@
-#include <semaphore.h>
 #include <unistd.h>  // usleep
+#include "SharedMemory.h"
+#include "Semaphore.h"
 
 #include <iostream>
 
@@ -14,24 +15,24 @@ int main(int argc, char* argv[]) {
   // [write] CODE
   // post(tcc_a)
 
-  TRACE("%s: Opening '%s'\n", argv[1], argv[1]);
-  sem_t* tcc_ = sem_open(argv[1], 0);
-  if (tcc_ == SEM_FAILED) {
-    TRACE("%s: Could not open 'tcc_*'; Probably CLAVM is not running\n",
-          argv[1]);
-    exit(1);
-  }
+  TRACE("%s: Starting...\n", argv[1]);
+
+  auto* code = new SharedMemory("/code", CODE_SIZE);
+  auto* tcc = new Semaphore(argv[1]);
 
   while (true) {
     TRACE("%s: Waiting on '%s'\n", argv[1], argv[1]);
-    sem_wait(tcc_);
+    tcc->wait();
 
     TRACE("%s: Compiling...\n", argv[1]);
     // usleep(1000000);
 
     TRACE("%s: Signaling '%s'\n", argv[1], argv[1]);
-    sem_post(tcc_);
+    tcc->post();
   }
+
+  delete tcc;
+  delete code;
 
   return 0;
 }
