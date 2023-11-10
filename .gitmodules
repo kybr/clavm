@@ -1,3 +1,3 @@
 [submodule "tinycc"]
-	path = attempt/clavm/tinycc
+	path = tinycc
 	url = https://repo.or.cz/tinycc.git
