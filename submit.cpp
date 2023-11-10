@@ -5,6 +5,7 @@
 #include "Help.h"
 #include "Semaphore.h"
 #include "SharedMemory.h"
+#include "Configuration.h"
 
 extern "C" void submit(char* reply, const char* source) {
   // open code shared memory
@@ -16,10 +17,9 @@ extern "C" void submit(char* reply, const char* source) {
   // [read] CODE
   // post(submit)
 
-  auto* code = new SharedMemory("/code", CODE_SIZE);
-
-  auto* submit = new Semaphore("submit");
-  auto* compile = new Semaphore("compile");
+  auto* code = new SharedMemory(NAME_MEMORY_CODE, SIZE_MEMORY_CODE);
+  auto* submit = new Semaphore(NAME_SEMAPHORE_SUBMIT);
+  auto* compile = new Semaphore(NAME_SEMAPHORE_COMPILE);
 
   using std::chrono::duration;
   using std::chrono::high_resolution_clock;
@@ -29,7 +29,7 @@ extern "C" void submit(char* reply, const char* source) {
   //TRACE("source: %s\n", source);
 
   submit->wait();
-  snprintf(static_cast<char*>(code->memory()), CODE_SIZE, "%s", source);
+  snprintf(static_cast<char*>(code->memory()), SIZE_MEMORY_CODE - 1, "%s", source);
   compile->post();
 
   compile->wait();

@@ -15,7 +15,7 @@ local lib = ffi.load('build/libsubmit.dylib')
 local function submit(source)
   print("source:", source)
   local reply = ffi.new("char[?]", 100)
-  lib.submit(reply, source) //////////////////////////
+  lib.submit(reply, source) -------------------------------
   print("reply:", ffi.string(reply))
 end
 
