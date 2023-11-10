@@ -1,0 +1,9 @@
+#!/bin/sh
+
+INSTALL_STATIC=`pwd`/tcc
+cd tinycc
+make distclean
+./configure --prefix=$INSTALL_STATIC
+make
+make install
+cd ..

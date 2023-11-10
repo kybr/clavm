@@ -28,6 +28,7 @@ int main(int argc, char* argv[]) {
   while (true) {
     TCCState* instance = tcc_new();
     if (instance == nullptr) {
+      exit(1);
     }
     tcc_set_error_func(instance, code->memory(), error_handler);
     tcc_set_options(instance, "-Wall -Werror");
@@ -39,13 +40,50 @@ int main(int argc, char* argv[]) {
 
     TRACE("%s: Compiling...\n", argv[1]);
     if (0 != tcc_compile_string(instance, static_cast<char*>(code->memory()))) {
-    // error is handled with a callback
-    }
-    else {
-      snprintf(static_cast<char*>(code->memory()), 100, "compiled");
+      // error is handled with a callback
+      tcc->post();
+      continue;
     }
 
-    TRACE("%s: Signaling '%s'\n", argv[1], argv[1]);
+    // XXX
+    //
+    // do we test the code right after we compile it?
+    //
+    // what we get:
+    //   most crashy code does not get to the audio thread
+    //   so the audio is less likely to go silent because
+    //   of a bit of bad code. we can also time the execution
+    //   to get an idea of the current cost of the code
+    // what we lose:
+    //   latency. running the code takes time.
+    //
+    // we will make it an option
+    //
+    if (0) {
+      // XXX run the code once
+      TRACE("%s: Relocating...\n", argv[1]);
+      if (-1 == tcc_relocate(instance, TCC_RELOCATE_AUTO)) {
+        snprintf(static_cast<char*>(code->memory()), 100, "relocate failed");
+        tcc->post();
+        continue;
+      }
+
+      TRACE("%s: Finding 'play' function...\n", argv[1]);
+      auto* function =
+          reinterpret_cast<void (*)(void)>(tcc_get_symbol(instance, "play"));
+      if (function == nullptr) {
+        snprintf(static_cast<char*>(code->memory()), 100, "no 'play' function");
+        tcc->post();
+        continue;
+      }
+
+      TRACE("%s: Calling 'play' function...\n", argv[1]);
+      function();
+    }
+
+    snprintf(static_cast<char*>(code->memory()), 100, "success");
+
+    TRACE("%s: Signaling\n", argv[1]);
     tcc->post();
   }
 

@@ -1,16 +1,4 @@
-dynamic/
-static/
-clavm
-clavm-submit
-clavm-broker
-clavm-wav
-test
-*.o
-backup/
-*.pkf
-*.wav
+tcc/
 .DS_Store
-a.out
-bin/
 build/
 trash/

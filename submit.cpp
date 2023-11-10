@@ -39,6 +39,8 @@ extern "C" void submit(char* reply, const char* source) {
 
   duration<double> time = high_resolution_clock::now() - then;
 
+  snprintf(reply, 100, "%lf", time.count());
+
   delete submit;
   delete compile;
   delete code;

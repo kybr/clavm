@@ -45,7 +45,7 @@ int main() {
     TRACE("CLAVM: Waiting on 'compiler'\n");
     compiler->wait();
 
-    TRACE("CLAVM: Has compiled; Swapping\n");
+    TRACE("CLAVM: Swapping\n");
     auto* tmp = compiler;
     compiler = executer;
     executer = tmp;
