@@ -7,6 +7,7 @@ class Semaphore {
   Semaphore(const char* name, bool create = false, bool state = false);
   ~Semaphore();
   bool wait(double timeout = 0.0);
+  bool trywait();
   void post();
 };
 

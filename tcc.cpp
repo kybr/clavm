@@ -1,11 +1,13 @@
 #include <libtcc.h>
+#include <unistd.h>
 
 #include <iostream>
+#include <thread>
 
+#include "Configuration.h"
 #include "Help.h"
 #include "Semaphore.h"
 #include "SharedMemory.h"
-#include "Configuration.h"
 
 void error_handler(void* code, const char* message) {
   snprintf(static_cast<char*>(code), 100, "%s", message);
@@ -13,21 +15,32 @@ void error_handler(void* code, const char* message) {
 
 int main(int argc, char* argv[]) {
   if (argc != 3) return 1;
-  // create shared memory (CODE)
-  // open semaphores
-  // wait(tcc_a)
-  // [read] CODE
-  // compile
-  // [write] CODE
-  // post(tcc_a)
-
   TRACE("%s: Starting...\n", argv[1]);
 
+  auto* audio = new SharedMemory(NAME_MEMORY_AUDIO, SIZE_MEMORY_AUDIO);
   auto* code = new SharedMemory(NAME_MEMORY_CODE, SIZE_MEMORY_CODE);
   auto* state = new SharedMemory(NAME_MEMORY_STATE, SIZE_MEMORY_STATE);
-
   auto* compile = new Semaphore(argv[1]);
   auto* execute = new Semaphore(argv[2]);
+
+  // XXX set this in the compile step or the audio step?
+  // relocate? find symbol? setting memory symbols?
+  //
+  void (*play)(void) = nullptr;
+
+  std::thread thread([&]() {
+    while (true) {
+      execute->wait();
+      usleep(800000);
+      auto N = static_cast<int*>(audio->memory())[0];
+      auto* block = static_cast<float*>(audio->memory());
+      // call play N times, filling audio memory with samples
+      for (int i = 0; i < N; i++) {
+        block[i] = float(i);
+      }
+      execute->post();
+    }
+  });
 
   while (true) {
     TCCState* instance = tcc_new();
@@ -35,7 +48,7 @@ int main(int argc, char* argv[]) {
       exit(1);
     }
     tcc_set_error_func(instance, code->memory(), error_handler);
-    //tcc_set_options(instance, "-Wall -Werror");
+    // tcc_set_options(instance, "-Wall -Werror");
     tcc_set_options(instance, "-Wall -Werror -nostdinc -nostdlib");
     tcc_set_output_type(instance, TCC_OUTPUT_MEMORY);
 
@@ -96,8 +109,11 @@ int main(int argc, char* argv[]) {
     compile->post();
   }
 
-  delete compile;
+  delete audio;
   delete code;
+  delete state;
+  delete compile;
+  delete execute;
 
   return 0;
 }

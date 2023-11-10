@@ -2,21 +2,12 @@
 #include <cmath>
 #include <iostream>
 
+#include "Configuration.h"
 #include "Help.h"
 #include "Semaphore.h"
 #include "SharedMemory.h"
-#include "Configuration.h"
 
 extern "C" void submit(char* reply, const char* source) {
-  // open code shared memory
-  // open semaphores
-  // wait(submit)
-  // [write] CODE
-  // post(compile)
-  // wait(compile)
-  // [read] CODE
-  // post(submit)
-
   auto* code = new SharedMemory(NAME_MEMORY_CODE, SIZE_MEMORY_CODE);
   auto* submit = new Semaphore(NAME_SEMAPHORE_SUBMIT);
   auto* compile = new Semaphore(NAME_SEMAPHORE_COMPILE);
@@ -26,16 +17,17 @@ extern "C" void submit(char* reply, const char* source) {
   using std::chrono::time_point;
   time_point<high_resolution_clock> then = high_resolution_clock::now();
 
-  //TRACE("source: %s\n", source);
+  // TRACE("source: %s\n", source);
 
   submit->wait();
-  snprintf(static_cast<char*>(code->memory()), SIZE_MEMORY_CODE - 1, "%s", source);
+  snprintf(static_cast<char*>(code->memory()), SIZE_MEMORY_CODE - 1, "%s",
+           source);
   compile->post();
 
   compile->wait();
   snprintf(reply, 100, "%s", static_cast<char*>(code->memory()));
   submit->post();
-  //TRACE("reply: %s\n", reply);
+  // TRACE("reply: %s\n", reply);
 
   duration<double> time = high_resolution_clock::now() - then;
 

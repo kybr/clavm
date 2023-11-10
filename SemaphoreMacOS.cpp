@@ -50,6 +50,10 @@ class _Semaphore {
     return false;
   }
 
+  bool trywait() {
+    return 0 == sem_trywait(semaphore);
+  }
+
   void post() { sem_post(semaphore); }
 };
 
@@ -59,4 +63,5 @@ Semaphore::Semaphore(const char* name, bool create, bool state)
 Semaphore::~Semaphore() { delete implementation; }
 
 bool Semaphore::wait(double timeout) { return implementation->wait(timeout); }
+bool Semaphore::trywait() { return implementation->trywait(); }
 void Semaphore::post() { implementation->post(); }

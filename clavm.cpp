@@ -1,4 +1,5 @@
 #include <iostream>
+#include <thread>
 
 #include "Configuration.h"
 #include "Help.h"
@@ -7,18 +8,9 @@
 #include "SharedMemory.h"
 
 int main() {
-  // create shared memory (CODE, AUDIO)
-  // open semaphores
-  // wait(compile)
-  // post(tcc_a)
-  // wait(tcc_a)
-  // [read] CODE
-  // maybe swap
-  // [write] CODE
-  // post(done)
-
   auto* code = new SharedMemory(NAME_MEMORY_CODE, SIZE_MEMORY_CODE, true);
   auto* state = new SharedMemory(NAME_MEMORY_STATE, SIZE_MEMORY_STATE, true);
+  auto* audio = new SharedMemory(NAME_MEMORY_AUDIO, SIZE_MEMORY_AUDIO, true);
 
   // make these fail if the semaphores are created.
   //
@@ -26,8 +18,9 @@ int main() {
   auto* compile = new Semaphore(NAME_SEMAPHORE_COMPILE, true);
   auto* compiler_a = new Semaphore(NAME_SEMAPHORE_COMPILER_A, true);
   auto* compiler_b = new Semaphore(NAME_SEMAPHORE_COMPILER_B, true);
-  auto* executer_a = new Semaphore(NAME_SEMAPHORE_EXECUTER_A, true);
-  auto* executer_b = new Semaphore(NAME_SEMAPHORE_EXECUTER_B, true);
+  auto* executer_a = new Semaphore(NAME_SEMAPHORE_EXECUTER_A, true, true);
+  auto* executer_b = new Semaphore(NAME_SEMAPHORE_EXECUTER_B, true, true);
+  auto* swap = new Semaphore(NAME_SEMAPHORE_SWAP, true);
 
   auto* compiler = compiler_a;
   auto* executer = executer_b;
@@ -42,6 +35,39 @@ int main() {
                            NAME_SEMAPHORE_EXECUTER_B, nullptr};
   tcc_a.spawn(b);
 
+  // simulating the audio thread
+  //
+  std::thread thread([&]() {
+    while (true) {
+      static_cast<int*>(audio->memory())[0] = AUDIO_BLOCK_SIZE;
+      executer->post();
+      executer->wait();
+      if (swap->trywait()) {
+        TRACE("CLAVM: Swapping\n");
+        if (compiler == compiler_a) {
+          compiler = compiler_b;
+        } else if (compiler == compiler_b) {
+          compiler = compiler_a;
+        } else {
+          TRACE("BAD\n");
+          exit(1);
+        }
+        if (executer == executer_a) {
+          executer = executer_b;
+        } else if (executer == executer_b) {
+          executer = executer_a;
+        } else {
+          TRACE("BAD\n");
+          exit(1);
+        }
+        swap->post();
+      }
+      auto* block = static_cast<float*>(audio->memory());
+      for (int i = 0; i < AUDIO_BLOCK_SIZE; i++) {
+      }
+    }
+  });
+
   TRACE("CLAVM: Started CLAVM\n");
 
   for (int i = 0; i < 3000010; i++) {
@@ -54,23 +80,9 @@ int main() {
     TRACE("CLAVM: Waiting on 'compiler'\n");
     compiler->wait();
 
-    TRACE("CLAVM: Swapping\n");
-    if (compiler == compiler_a) {
-      compiler = compiler_b;
-    } else if (compiler == compiler_b) {
-      compiler = compiler_a;
-    } else {
-      TRACE("BAD\n");
-      exit(1);
-    }
-    if (executer == executer_a) {
-      executer = executer_b;
-    } else if (executer == executer_b) {
-      executer = executer_a;
-    } else {
-      TRACE("BAD\n");
-      exit(1);
-    }
+    // XXX check if compiler succeeded!
+    swap->post();
+    swap->wait();
 
     TRACE("CLAVM: Signaling 'compile'\n");
     compile->post();
