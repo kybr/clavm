@@ -4,6 +4,7 @@
 #include <iostream>
 #include <thread>
 
+#include "CLAVMAPI.h"
 #include "Configuration.h"
 #include "Help.h"
 #include "Semaphore.h"
@@ -42,8 +43,12 @@ int main(int argc, char* argv[]) {
     }
   });
 
+  TCCState* instance{nullptr};
   while (true) {
-    TCCState* instance = tcc_new();
+    if (instance) {
+      tcc_delete(instance);
+    }
+    instance = tcc_new();
     if (instance == nullptr) {
       exit(1);
     }
@@ -64,7 +69,17 @@ int main(int argc, char* argv[]) {
       compile->post();
       continue;
     }
-    tcc_delete(instance);
+
+    tcc_add_symbol(instance, "_samplerate", reinterpret_cast<void*>(_samplerate));
+    tcc_add_symbol(instance, "_time", reinterpret_cast<void*>(_time));
+    tcc_add_symbol(instance, "_float", reinterpret_cast<void*>(_float));
+    tcc_add_symbol(instance, "_double", reinterpret_cast<void*>(_double));
+    tcc_add_symbol(instance, "_int", reinterpret_cast<void*>(_int));
+    tcc_add_symbol(instance, "_long", reinterpret_cast<void*>(_long));
+    tcc_add_symbol(instance, "_in", reinterpret_cast<void*>(_in));
+    tcc_add_symbol(instance, "_out", reinterpret_cast<void*>(_out));
+    tcc_add_symbol(instance, "_stereo", reinterpret_cast<void*>(_stereo));
+
     printf("Compiler took %lf seconds\n", clock.toc());
 
     // XXX
@@ -81,32 +96,32 @@ int main(int argc, char* argv[]) {
     //
     // we will make it an option
     //
-    if (0) {
-      // XXX run the code once
-      TRACE("%s: Relocating...\n", argv[1]);
-      if (-1 == tcc_relocate(instance, TCC_RELOCATE_AUTO)) {
-        snprintf(static_cast<char*>(code->memory()), 100, "relocate failed");
-        compile->post();
-        continue;
-      }
-
-      TRACE("%s: Finding 'play' function...\n", argv[1]);
-      auto* function =
-          reinterpret_cast<void (*)(void)>(tcc_get_symbol(instance, "play"));
-      if (function == nullptr) {
-        snprintf(static_cast<char*>(code->memory()), 100, "no 'play' function");
-        compile->post();
-        continue;
-      }
-
-      TRACE("%s: Calling 'play' function...\n", argv[1]);
-      function();
+    //
+    // XXX run the code once
+    TRACE("%s: Relocating...\n", argv[1]);
+    if (-1 == tcc_relocate(instance, TCC_RELOCATE_AUTO)) {
+      snprintf(static_cast<char*>(code->memory()), 100, "relocate failed");
+      compile->post();
+      continue;
     }
+    /*
+          TRACE("%s: Finding 'play' function...\n", argv[1]);
+          auto* function =
+              reinterpret_cast<void (*)(void)>(tcc_get_symbol(instance,
+      "play")); if (function == nullptr) {
+            snprintf(static_cast<char*>(code->memory()), 100, "no 'play'
+      function"); compile->post(); continue;
+          }
 
-    snprintf(static_cast<char*>(code->memory()), 100, "success");
+          TRACE("%s: Calling 'play' function...\n", argv[1]);
+          function();
+        }
 
-    TRACE("%s: Signaling\n", argv[1]);
-    compile->post();
+        snprintf(static_cast<char*>(code->memory()), 100, "success");
+
+        TRACE("%s: Signaling\n", argv[1]);
+        compile->post();
+    */
   }
 
   delete audio;
