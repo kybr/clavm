@@ -1,0 +1,27 @@
+.SUFFIXES:
+
+CXX =
+CXX += g++
+CXX += -std=c++11
+
+COMPILER =
+COMPILER += -Wall
+COMPILER += -g
+
+LINKER =
+LINKER += -llo
+LINKER += -ltcc
+LINKER += -ldl
+
+_: per-sample-c-client
+
+%.o: %.cpp
+	$(CXX) $^ -c $(COMPILER)
+
+per-sample-c-client: per-sample-c-client.cpp
+	$(CXX) $^ -o $@ $(LINKER)
+	cp per-sample-c-client ../play
+
+clean:
+	rm -f per-sample-c-client
+	rm -f per-sample-c-client.o

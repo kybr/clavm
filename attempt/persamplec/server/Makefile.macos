@@ -1,0 +1,35 @@
+.SUFFIXES:
+
+CXX =
+CXX += c++
+CXX += -std=c++11
+
+COMPILER =
+COMPILER += -Wall
+COMPILER += -g
+COMPILER += -D__MACOSX_CORE__
+
+INCLUDE =
+INCLUDE += -I/opt/homebrew/include
+
+LINKER =
+LINKER += -ltcc
+#LINKER += ../libtcc.a
+LINKER += -ldl
+LINKER += -lpthread
+LINKER += -llo
+LINKER += -framework CoreAudio
+LINKER += -framework CoreFoundation
+LINKER += -L/opt/homebrew/lib
+
+_: per-sample-c-server
+
+%.o: %.cpp
+	$(CXX) $^ -c $(INCLUDE) $(COMPILER)
+
+per-sample-c-server: per-sample-c-server.o compiler.o RtAudio.o
+	$(CXX) $^ -o $@ $(INCLUDE) $(LINKER)
+
+clean:
+	rm -f per-sample-c-server
+	rm -f RtAudio.o compiler.o per-sample-c-server.o

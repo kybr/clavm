@@ -1,0 +1,7 @@
+*.o
+server/per-sample-c-server
+server/Makefile
+client/per-sample-c-client
+client/Makefile
+play/per-sample-c-server
+play/per-sample-c-client

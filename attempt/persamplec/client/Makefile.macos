@@ -1,0 +1,33 @@
+.SUFFIXES:
+
+CXX =
+CXX += c++
+CXX += -std=c++11
+
+INCLUDE =
+INCLUDE += -I/usr/local/include
+INCLUDE += -I/opt/homebrew/include
+
+
+COMPILER =
+COMPILER += -Wall
+COMPILER += -g
+
+LINKER =
+LINKER += -llo
+LINKER += -ltcc
+LINKER += -L/usr/local/lib
+LINKER += -L/opt/homebrew/lib
+#LINKER += ../libtcc.a
+
+_: per-sample-c-client
+
+%.o: %.cpp
+	$(CXX) $^ -c $(INCLUDE) $(COMPILER)
+
+per-sample-c-client: per-sample-c-client.cpp
+	$(CXX) $^ -o $@ $(INCLUDE) $(LINKER)
+
+clean:
+	rm -f per-sample-c-client
+	rm -f per-sample-c-client.o
