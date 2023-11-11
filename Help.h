@@ -3,8 +3,6 @@
 #include <iostream>
 #include <chrono>
 
-void say(const char* message) { printf("%s\n", message); }
-
 #define DEBUG
 
 #ifdef DEBUG

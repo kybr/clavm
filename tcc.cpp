@@ -31,6 +31,7 @@ int main(int argc, char* argv[]) {
 
   std::thread thread([&]() {
     while (true) {
+      
       execute->wait();
       usleep(800000);
       auto N = static_cast<int*>(audio->memory())[0];
@@ -72,13 +73,13 @@ int main(int argc, char* argv[]) {
 
     tcc_add_symbol(instance, "_samplerate", reinterpret_cast<void*>(_samplerate));
     tcc_add_symbol(instance, "_time", reinterpret_cast<void*>(_time));
-    tcc_add_symbol(instance, "_float", reinterpret_cast<void*>(_float));
-    tcc_add_symbol(instance, "_double", reinterpret_cast<void*>(_double));
-    tcc_add_symbol(instance, "_int", reinterpret_cast<void*>(_int));
-    tcc_add_symbol(instance, "_long", reinterpret_cast<void*>(_long));
+    //tcc_add_symbol(instance, "_double", reinterpret_cast<void*>(_double));
+    //tcc_add_symbol(instance, "_long", reinterpret_cast<void*>(_long));
     tcc_add_symbol(instance, "_in", reinterpret_cast<void*>(_in));
     tcc_add_symbol(instance, "_out", reinterpret_cast<void*>(_out));
-    tcc_add_symbol(instance, "_stereo", reinterpret_cast<void*>(_stereo));
+    tcc_add_symbol(instance, "_lr", reinterpret_cast<void*>(_lr));
+    tcc_add_symbol(instance, "_p", reinterpret_cast<void*>(_p));
+    tcc_add_symbol(instance, "_d", reinterpret_cast<void*>(_d));
 
     printf("Compiler took %lf seconds\n", clock.toc());
 
