@@ -27,7 +27,7 @@ RtMidiIn* midi;
 
 void execute() {
   executer->post();
-  executer->wait();
+  executer->wait(0.001);
 }
 
 void tryswap() {
