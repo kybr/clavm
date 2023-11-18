@@ -28,18 +28,10 @@ int main(int argc, char* argv[]) {
   // relocate? find symbol? setting memory symbols?
   //
   void (*play)(void) = nullptr;
-
   std::thread thread([&]() {
     while (true) {
-      
       execute->wait();
-      usleep(800000);
-      auto N = static_cast<int*>(audio->memory())[0];
-      auto* block = static_cast<float*>(audio->memory());
-      // call play N times, filling audio memory with samples
-      for (int i = 0; i < N; i++) {
-        block[i] = float(i);
-      }
+      clavm_process_block(play); // read/write audio/state memory
       execute->post();
     }
   });
@@ -71,10 +63,11 @@ int main(int argc, char* argv[]) {
       continue;
     }
 
-    tcc_add_symbol(instance, "_samplerate", reinterpret_cast<void*>(_samplerate));
+    tcc_add_symbol(instance, "_samplerate",
+                   reinterpret_cast<void*>(_samplerate));
     tcc_add_symbol(instance, "_time", reinterpret_cast<void*>(_time));
-    //tcc_add_symbol(instance, "_double", reinterpret_cast<void*>(_double));
-    //tcc_add_symbol(instance, "_long", reinterpret_cast<void*>(_long));
+    // tcc_add_symbol(instance, "_double", reinterpret_cast<void*>(_double));
+    // tcc_add_symbol(instance, "_long", reinterpret_cast<void*>(_long));
     tcc_add_symbol(instance, "_in", reinterpret_cast<void*>(_in));
     tcc_add_symbol(instance, "_out", reinterpret_cast<void*>(_out));
     tcc_add_symbol(instance, "_lr", reinterpret_cast<void*>(_lr));
@@ -97,32 +90,21 @@ int main(int argc, char* argv[]) {
     //
     // we will make it an option
     //
-    //
-    // XXX run the code once
+
     TRACE("%s: Relocating...\n", argv[1]);
     if (-1 == tcc_relocate(instance, TCC_RELOCATE_AUTO)) {
       snprintf(static_cast<char*>(code->memory()), 100, "relocate failed");
       compile->post();
       continue;
     }
-    /*
-          TRACE("%s: Finding 'play' function...\n", argv[1]);
-          auto* function =
-              reinterpret_cast<void (*)(void)>(tcc_get_symbol(instance,
-      "play")); if (function == nullptr) {
-            snprintf(static_cast<char*>(code->memory()), 100, "no 'play'
-      function"); compile->post(); continue;
-          }
 
-          TRACE("%s: Calling 'play' function...\n", argv[1]);
-          function();
-        }
-
-        snprintf(static_cast<char*>(code->memory()), 100, "success");
-
-        TRACE("%s: Signaling\n", argv[1]);
-        compile->post();
-    */
+    play = nullptr; // XXX protect with a mutex?
+    play = reinterpret_cast<void (*)(void)>(tcc_get_symbol(instance, "play"));
+    if (play == nullptr) {
+      snprintf(static_cast<char*>(code->memory()), 100, "no 'play' function");
+      compile->post();
+      continue;
+    }
   }
 
   delete audio;

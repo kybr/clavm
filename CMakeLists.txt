@@ -5,15 +5,25 @@ find_package(Threads)
 include_directories(perfetto/sdk)
 add_library(perfetto STATIC perfetto/sdk/perfetto.cc)
 
-add_executable(clavm clavm.cpp)
+add_executable(clavm clavm.cpp rtaudio/RtAudio.cpp rtmidi/RtMidi.cpp CLAVMAPI.cpp)
 add_executable(tcc tcc.cpp CLAVMAPI.cpp)
 add_library(submit SHARED submit.cpp)
 add_executable(test-clavmapi test-clavmapi.cpp CLAVMAPI.cpp)
 
+target_compile_definitions(clavm PUBLIC __MACOSX_CORE__)
+
+target_include_directories(clavm PUBLIC ${PROJECT_SOURCE_DIR}/rtaudio ${PROJECT_SOURCE_DIR}/rtmidi)
 target_include_directories(tcc PUBLIC ${PROJECT_SOURCE_DIR}/tcc/include)
 target_include_directories(test-clavmapi PUBLIC ${PROJECT_SOURCE_DIR}/tcc/include)
 
-target_link_libraries(clavm perfetto ${CMAKE_THREAD_LIBS_INIT})
+target_link_libraries(clavm
+  perfetto
+  ${CMAKE_THREAD_LIBS_INIT}
+  "-framework CoreMIDI"
+  "-framework CoreAudio"
+  "-framework CoreFoundation"
+)
+
 target_link_libraries(tcc ${PROJECT_SOURCE_DIR}/tcc/lib/libtcc.a perfetto ${CMAKE_THREAD_LIBS_INIT})
 target_link_libraries(submit perfetto ${CMAKE_THREAD_LIBS_INIT})
 target_link_libraries(test-clavmapi ${PROJECT_SOURCE_DIR}/tcc/lib/libtcc.a perfetto ${CMAKE_THREAD_LIBS_INIT})
